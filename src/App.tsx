@@ -17,7 +17,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <LoadPanel visible={loading} showIndicator showPane message="제주 밭작물 CSV 불러오는 중…" />
+      <LoadPanel visible={loading} showIndicator showPane message="셀 사이클 CSV 불러오는 중…" />
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', width: '100%' }}>
         <TabPanel
           width="100%"

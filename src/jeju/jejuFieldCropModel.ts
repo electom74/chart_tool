@@ -1,4 +1,4 @@
-/** 2023 제주 농업경영정보조사 REFINED 밭작물 CSV — 시각화용 슬림 행 */
+/** 대시보드 공통 시각화용 슬림 행(농업·셀 CSV 등 매핑 대상) */
 
 export type JejuFieldCropSlim = {
   id: number
@@ -290,7 +290,12 @@ export function tileViewTopCrops(rows: JejuFieldCropSlim[], limit = 16) {
 }
 
 /** CSV가 짧을 때 시각화용으로 채울 목표 행 수(이상이면 확장하지 않음) */
-export const JEJU_DEMO_EXPAND_TARGET_ROWS = 1800
+export const JEJU_DEMO_EXPAND_TARGET_ROWS = 1900
+
+export type ExpandFieldCropDemoOptions = {
+  /** false면 제주 작목/시군 보조 라벨을 쓰지 않음(비농업 CSV 등) */
+  regionalFallbacks?: boolean
+}
 
 const FALLBACK_JEJU_ITEMS = [
   '감귤',
@@ -330,12 +335,21 @@ function jitterNullable(v: number | null, seed: number, relSpread: number): numb
   return jitterFinite(v, seed, relSpread)
 }
 
+const FALLBACK_CELL_ITEMS = ['Cyc0/Age1', 'Cyc2/Age1', 'Cyc0/Age0', 'Cyc2/Age0', 'Cyc0/Age1·복제']
+const FALLBACK_CELL_CTY = ['SOC0', 'SOC25', 'SOC50', 'SOC75']
+
 /**
  * 원본 행이 `minRows` 미만이면, 총재배면적이 있는 행을 시드로 순환·변주해 데모 행을 늘립니다.
  * 이미 충분히 긴 CSV는 그대로 둡니다.
  */
-export function expandJejuFieldCropRowsForDemo(rows: JejuFieldCropSlim[], minRows = JEJU_DEMO_EXPAND_TARGET_ROWS): JejuFieldCropSlim[] {
+export function expandJejuFieldCropRowsForDemo(
+  rows: JejuFieldCropSlim[],
+  minRows = JEJU_DEMO_EXPAND_TARGET_ROWS,
+  opts?: ExpandFieldCropDemoOptions,
+): JejuFieldCropSlim[] {
   if (rows.length >= minRows) return rows
+
+  const regional = opts?.regionalFallbacks !== false
 
   const seeds = rows.filter((r) => r.ttlCltvtnArea != null && Number.isFinite(r.ttlCltvtnArea))
   if (!seeds.length) return rows
@@ -352,21 +366,34 @@ export function expandJejuFieldCropRowsForDemo(rows: JejuFieldCropSlim[], minRow
   }
 
   const itemsPool = [...itemSet]
-  if (itemsPool.length < 12) {
-    for (const x of FALLBACK_JEJU_ITEMS) {
-      if (itemsPool.length >= 14) break
+  if (regional) {
+    if (itemsPool.length < 12) {
+      for (const x of FALLBACK_JEJU_ITEMS) {
+        if (itemsPool.length >= 14) break
+        if (!itemSet.has(x)) itemsPool.push(x)
+      }
+    }
+  } else if (itemsPool.length < 8) {
+    for (const x of FALLBACK_CELL_ITEMS) {
+      if (itemsPool.length >= 12) break
       if (!itemSet.has(x)) itemsPool.push(x)
     }
   }
-  if (!itemsPool.length) itemsPool.push('밭작물')
+  if (!itemsPool.length) itemsPool.push(regional ? '밭작물' : '셀_사이클')
 
   const ctyPool = [...ctySet]
-  if (ctyPool.length < 2) {
-    for (const x of FALLBACK_JEJU_CTY) {
+  if (regional) {
+    if (ctyPool.length < 2) {
+      for (const x of FALLBACK_JEJU_CTY) {
+        if (!ctySet.has(x)) ctyPool.push(x)
+      }
+    }
+  } else if (ctyPool.length < 2) {
+    for (const x of FALLBACK_CELL_CTY) {
       if (!ctySet.has(x)) ctyPool.push(x)
     }
   }
-  if (!ctyPool.length) ctyPool.push('제주시', '서귀포시')
+  if (!ctyPool.length) ctyPool.push(regional ? '제주시' : 'SOC0', regional ? '서귀포시' : 'SOC50')
 
   const out: JejuFieldCropSlim[] = rows.slice()
 
@@ -397,11 +424,11 @@ export function expandJejuFieldCropRowsForDemo(rows: JejuFieldCropSlim[], minRow
       seq: k + 1,
       srvyId: `syn-${String(k + 1).padStart(6, '0')}`,
       listId: base.listId ? `${base.listId}-s${k}` : `L${k}`,
-      plcAddr: base.plcAddr ? `${base.plcAddr.slice(0, 40)} · 확장` : `제주 데모 주소 ${k + 1}`,
-      mngmSttsNm: mngmFallback || base.mngmSttsNm || '경영 중',
+      plcAddr: base.plcAddr ? `${base.plcAddr.slice(0, 40)} · 확장` : regional ? `제주 데모 주소 ${k + 1}` : `데모 위치 ${k + 1}`,
+      mngmSttsNm: mngmFallback || base.mngmSttsNm || (regional ? '경영 중' : '측정'),
       item,
       cty,
-      eupmyeon: base.eupmyeon || '읍면동',
+      eupmyeon: base.eupmyeon || (regional ? '읍면동' : '세그'),
       ttlCltvtnArea: ttl,
       alt: altOut,
       exmnTrgtPlcAreaPy: pyOut,

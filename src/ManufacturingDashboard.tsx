@@ -230,7 +230,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
     <div className="dash-chart-tab-scroll-shell">
       <TabScroll>
       <div className="viz-filter-bar">
-        <span className="viz-filter-label">시군구 필터</span>
+        <span className="viz-filter-label">SOC 구간(cty) 필터</span>
         <SelectBox
           width={220}
           displayExpr="name"
@@ -320,13 +320,13 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           </Chart>
         </Card>
 
-        <Card title="시군구 — 건수·평균면적 (그룹 막대)">
+        <Card title="SOC 구간(cty) — 건수·평균(총전량 대응)">
           <Chart dataSource={aggregateCtyAvgTtl(viewRows, 12)} style={chartHeight(DX_CHART)} palette="Ocean">
-            <ArgumentAxis title={{ text: '시군구' }} />
+            <ArgumentAxis title={{ text: 'SOC 구간(cty)' }} />
             <ValueAxis title={{ text: '값' }} />
             <CommonSeriesSettings argumentField="cty" type="bar" />
             <Series valueField="cnt" name="건수" />
-            <Series valueField="avgTtl" name="평균 총재배면적" />
+            <Series valueField="avgTtl" name="평균(총전량 축)" />
             <ChartLegend horizontalAlignment="center" verticalAlignment="bottom" />
             <ChartTooltip enabled shared />
             <ChartExport enabled />
@@ -530,7 +530,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
 
         <Card title="샘플 로드 진행률(데모)">
           <ProgressBar value={Math.min(100, Math.round((rows.length / 800) * 100))} />
-          <p className="gauge-note">로드된 레코드 {rows.length}건 · 원본 CSV에서 앞부분 샘플</p>
+          <p className="gauge-note">표시 레코드 {rows.length}건 · 원본 행이 적으면 동일 시드로 자동 확장된 데모입니다.</p>
         </Card>
       </div>
       </TabScroll>
@@ -602,9 +602,9 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
       <Toolbar className="dash-toolbar" style={{ flexShrink: 0 }}>
         <ToolbarItem location="before">
           <div>
-            <div className="dash-title">2023 제주 농업경영정보조사 · 밭작물 (REFINED) 시각화</div>
+            <div className="dash-title">배터리 셀 EOC/사이클 로그 시각화 (cell_eocv2)</div>
             <div className="dash-sub">
-              원본: Downloads CSV → 샘플 <code>public/data/jeju-field-crops-sample.csv</code> — 전체{' '}
+              데이터: <code>public/data/cell_eocv2_P001_1_S01_C10.csv</code> (세미콜론 구분) — 표시{' '}
               <strong>{rows.length}</strong>행
               {ctyFilter ? (
                 <>
@@ -621,8 +621,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         <div className="viz-card" style={{ marginTop: 12 }}>
           <p style={{ color: '#b91c1c' }}>데이터를 불러오지 못했습니다: {loadError}</p>
           <p className="gauge-note">
-            프로젝트 루트에서 <code>npm run extract:jeju-csv</code> 로{' '}
-            <code>public/data/jeju-field-crops-sample.csv</code> 를 만든 뒤 다시 실행해 보세요.
+            <code>public/data/cell_eocv2_P001_1_S01_C10.csv</code> 파일이 있는지 확인한 뒤 다시 실행해 보세요.
           </p>
         </div>
       ) : null}

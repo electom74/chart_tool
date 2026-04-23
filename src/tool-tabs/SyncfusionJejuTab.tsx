@@ -146,7 +146,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
   if (loading && rows.length === 0) {
     return (
       <TabScroll>
-        <p className="gauge-note">제주 샘플 CSV를 불러오는 중입니다…</p>
+        <p className="gauge-note">셀 사이클 CSV를 불러오는 중입니다…</p>
         <SyncfusionLicenseNote />
       </TabScroll>
     )

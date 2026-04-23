@@ -65,7 +65,7 @@ export type JejuKendoChartGalleryProps = {
   chartHeight?: number
 }
 
-/** 제주 밭작물 동일 데이터로 KendoReact Chart 10종(막대·라인·영역·도넛·퍼널·버블·레이더·가로막대·범위막대·산점) */
+/** 대시보드 공통 슬림 행 데이터로 KendoReact Chart 10종(막대·라인·영역·도넛·퍼널·버블·레이더·가로막대·범위막대·산점) */
 export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }: JejuKendoChartGalleryProps) {
   const h = chartHeight
   const funnel = funnelStageCounts(rows.length)

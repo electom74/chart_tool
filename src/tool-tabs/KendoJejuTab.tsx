@@ -81,10 +81,10 @@ export default function KendoJejuTab(props: ToolRowsProps) {
   return (
     <JejuDataGate {...props}>
       <TabScroll>
-        <ToolSection title="KendoReact Chart — 제주 데이터 시각화(12종)">
+        <ToolSection title="KendoReact Chart — 셀 사이클 데이터 시각화(12종)">
           <p className="gauge-note" style={{ marginTop: 0 }}>
-            이 탭은 <strong>KendoReact Chart</strong>만 사용합니다. 아래 10종은 공통 갤러리, 이어서 같은 데이터로 Pie·스택
-            Column을 추가했습니다.
+            이 탭은 <strong>KendoReact Chart</strong>만 사용합니다. 데이터는 <code>cell_eocv2</code> CSV를 동일 스키마로 매핑한
+            것입니다.
           </p>
           <JejuKendoChartGallery rows={rows} />
           <KendoExtraTwo rows={rows} />
