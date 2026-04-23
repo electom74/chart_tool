@@ -10,8 +10,8 @@ export function TabScroll({ children }: { children: ReactNode }) {
       className="viz-tab-scroll-root"
       style={{
         width: '100%',
-        minHeight: 'min(72vh, 720px)',
-        maxHeight: 'calc(100vh - 96px)',
+        flex: '1 1 auto',
+        minHeight: 0,
         overflowY: 'auto',
         overflowX: 'hidden',
       }}

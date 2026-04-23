@@ -41,12 +41,13 @@ function MiniKendoChart({ title, height, children }: { title: string; height: nu
       style={{
         border: '1px solid #e2e8f0',
         borderRadius: 8,
-        padding: '6px 6px 2px',
+        padding: '10px 10px 6px',
         background: '#fff',
+        minWidth: 0,
       }}
     >
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#334155', marginBottom: 2 }}>{title}</div>
-      <Chart style={{ height }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#334155', marginBottom: 6 }}>{title}</div>
+      <Chart style={{ height, fontSize: 13 }}>
         <ChartTooltip />
         <ChartLegend visible={false} />
         {children}
@@ -55,17 +56,12 @@ function MiniKendoChart({ title, height, children }: { title: string; height: nu
   )
 }
 
-const chartGrid = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-  gap: 10,
-} as const
-
-const defaultChartHeight = 148
+/** 2열 배치 시 카드당 세로 공간 — 축·숫자 라벨 가독성 */
+const defaultChartHeight = 400
 
 export type JejuKendoChartGalleryProps = {
   rows: JejuFieldCropSlim[]
-  /** 차트 높이(px). 기본 148 */
+  /** 차트 높이(px). 기본 400(2열 레이아웃) */
   chartHeight?: number
 }
 
@@ -92,7 +88,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
   const scatterPts = bubbles.slice(0, 90)
 
   return (
-    <div style={chartGrid}>
+    <div className="kendo-gallery-grid">
       <MiniKendoChart title="1. Column — 작목 평균 재배면적" height={h}>
         <ChartCategoryAxis>
           <ChartCategoryAxisItem labels={{ rotation: -35 }} />
@@ -107,7 +103,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
 
       <MiniKendoChart title="2. Line — 누적 총재배면적(샘플링)" height={h}>
         <ChartCategoryAxis>
-          <ChartCategoryAxisItem />
+          <ChartCategoryAxisItem labels={{ rotation: 'auto', step: 2 }} />
         </ChartCategoryAxis>
         <ChartValueAxis>
           <ChartValueAxisItem />
@@ -126,7 +122,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
 
       <MiniKendoChart title="3. Area — 누적면적(영역)" height={h}>
         <ChartCategoryAxis>
-          <ChartCategoryAxisItem />
+          <ChartCategoryAxisItem labels={{ rotation: 'auto', step: 2 }} />
         </ChartCategoryAxis>
         <ChartValueAxis>
           <ChartValueAxisItem />

@@ -17,9 +17,9 @@ import { TabScroll } from './TabScroll'
 
 function Mini({ title, height, children }: { title: string; height: number; children: ReactNode }) {
   return (
-    <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 6, background: '#fff' }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#334155', marginBottom: 2 }}>{title}</div>
-      <Chart style={{ height }}>
+    <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 10px 6px', background: '#fff', minWidth: 0 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#334155', marginBottom: 6 }}>{title}</div>
+      <Chart style={{ height, fontSize: 13 }}>
         <ChartTooltip />
         <ChartLegend visible={false} />
         {children}
@@ -31,16 +31,9 @@ function Mini({ title, height, children }: { title: string; height: number; chil
 function KendoExtraTwo({ rows }: { rows: JejuFieldCropSlim[] }) {
   const pie = pieItemTopN(rows, 8)
   const cty = aggregateCtyAvgTtl(rows, 7)
-  const h = 148
+  const h = 400
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-        gap: 10,
-        marginTop: 10,
-      }}
-    >
+    <div className="kendo-gallery-grid" style={{ marginTop: 10 }}>
       <Mini title="11. Pie — 작목 건수" height={h}>
         <ChartSeries>
           <ChartSeriesItem

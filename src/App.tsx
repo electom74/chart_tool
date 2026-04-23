@@ -27,34 +27,54 @@ export default function App() {
           focusStateEnabled
         >
         <Item title="DevExtreme" icon="chart">
-          <ManufacturingDashboard rows={rows} loadError={error} />
+          <div className="tool-tab-host">
+            <ManufacturingDashboard rows={rows} loadError={error} />
+          </div>
         </Item>
         <Item title="Syncfusion" icon="mediumiconslayout">
-          <SyncfusionJejuTab key={`syncfusion-jeju-${rows.length}`} rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <SyncfusionJejuTab key={`syncfusion-jeju-${rows.length}`} rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="Ignite UI" icon="rowfield">
-          <IgniteJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <IgniteJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="KendoReact" icon="chart">
-          <KendoJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <KendoJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="AG Grid Enterprise" icon="fields">
-          <AgGridJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <AgGridJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="Handsontable" icon="pasteplaintext">
-          <HandsontableJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <HandsontableJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="Wijmo" icon="chart">
-          <WijmoJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <WijmoJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="Recharts" icon="chart">
-          <RechartsJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <RechartsJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="ECharts" icon="chart">
-          <EChartsJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <EChartsJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         <Item title="Chart.js" icon="chart">
-          <ChartJsJejuTab rows={rows} loadError={error} loading={loading} />
+          <div className="tool-tab-host">
+            <ChartJsJejuTab rows={rows} loadError={error} loading={loading} />
+          </div>
         </Item>
         </TabPanel>
       </div>

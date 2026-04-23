@@ -89,6 +89,17 @@ function chartHeight(h: number) {
   return { height: h }
 }
 
+/** KendoReact 2열 갤러리(`defaultChartHeight` 400)와 맞춘 크기 */
+const DX_CHART = 400
+const DX_RANGE_SELECTOR = 160
+const DX_TILEVIEW = 280
+const DX_TILE_ITEM = 120
+const DX_GAUGE_CIRCULAR = 280
+const DX_GAUGE_LINEAR = 200
+const DX_BAR_GAUGE = 280
+const DX_BULLET = 72
+const DX_SPARKLINE = 120
+
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="viz-card">
@@ -216,7 +227,8 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
   const rsDefault: [number, number] = [rsMin, Math.min(rsMax, rsMin + rsSpan)]
 
   const tab1 = (
-    <TabScroll>
+    <div className="dash-chart-tab-scroll-shell">
+      <TabScroll>
       <div className="viz-filter-bar">
         <span className="viz-filter-label">시군구 필터</span>
         <SelectBox
@@ -242,7 +254,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             title={{ text: '행 구간을 드래그해 탐색 (총재배면적)' }}
             defaultValue={rsDefault}
           >
-            <RsSize height={120} />
+            <RsSize height={DX_RANGE_SELECTOR} />
             <RsScale startValue={rsMin} endValue={rsMax} tickInterval={Math.max(1, Math.floor((rsMax - rsMin) / 8))} />
             <RsChart palette="Harmony Light">
               <RsSeries argumentField="seq" valueField="ttlCltvtnArea" type="area" />
@@ -254,7 +266,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         <Card title="행 순서 — 총재배면적 (Spline · 줌/팬 · 크로스헤어)">
           <Chart
             dataSource={splineDs}
-            style={chartHeight(320)}
+            style={chartHeight(DX_CHART)}
             palette="Harmony Light"
             title={{ text: '마우스로 확대·이동 가능' }}
           >
@@ -273,7 +285,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         </Card>
 
         <Card title="버블 — 면적 × 조사대지 × 판매금액(크기)">
-          <Chart dataSource={bubblePlotRows(viewRows)} style={chartHeight(320)} palette="Pastel">
+          <Chart dataSource={bubblePlotRows(viewRows)} style={chartHeight(DX_CHART)} palette="Pastel">
             <ArgumentAxis title={{ text: '총재배면적' }} />
             <ValueAxis title={{ text: '조사대지면적(평)' }} />
             <Series
@@ -289,7 +301,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         </Card>
 
         <Card title="Step — 누적 총재배면적">
-          <Chart dataSource={cumulativeTtlSeries(viewRows)} style={chartHeight(280)} palette="Soft">
+          <Chart dataSource={cumulativeTtlSeries(viewRows)} style={chartHeight(DX_CHART)} palette="Soft">
             <ArgumentAxis title={{ text: '행 순서' }} />
             <ValueAxis title={{ text: '누적 면적' }} />
             <Series argumentField="seq" valueField="cumTtl" type="stepline" name="누적" color="#0d9488" />
@@ -299,7 +311,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         </Card>
 
         <Card title="히스토그램 — 총재배면적 구간별 건수">
-          <Chart dataSource={ttlHistogramBins(viewRows, 14)} style={chartHeight(300)} palette="Bright">
+          <Chart dataSource={ttlHistogramBins(viewRows, 14)} style={chartHeight(DX_CHART)} palette="Bright">
             <ArgumentAxis />
             <ValueAxis title={{ text: '건수' }} />
             <Series argumentField="bin" valueField="count" type="bar" name="건수" />
@@ -309,7 +321,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         </Card>
 
         <Card title="시군구 — 건수·평균면적 (그룹 막대)">
-          <Chart dataSource={aggregateCtyAvgTtl(viewRows, 12)} style={chartHeight(320)} palette="Ocean">
+          <Chart dataSource={aggregateCtyAvgTtl(viewRows, 12)} style={chartHeight(DX_CHART)} palette="Ocean">
             <ArgumentAxis title={{ text: '시군구' }} />
             <ValueAxis title={{ text: '값' }} />
             <CommonSeriesSettings argumentField="cty" type="bar" />
@@ -324,8 +336,8 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         <Card title="TileView — 상위 작목(면적합 기준)">
           <TileView
             items={tileViewTopCrops(viewRows, 18)}
-            height={220}
-            baseItemHeight={100}
+            height={DX_TILEVIEW}
+            baseItemHeight={DX_TILE_ITEM}
             direction="horizontal"
             itemMargin={10}
           />
@@ -334,7 +346,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         <Card title="스택 영역 — 면적·고도·조사대지(행 순서)">
           <Chart
             dataSource={stackedDs}
-            style={chartHeight(340)}
+            style={chartHeight(DX_CHART)}
             palette="Bright"
             resolveLabelOverlapping="stack"
           >
@@ -351,7 +363,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         </Card>
 
         <Card title="총재배면적 vs 조사대지면적 (Scatter)">
-          <Chart dataSource={scatterRows(viewRows)} style={chartHeight(300)} palette="Soft">
+          <Chart dataSource={scatterRows(viewRows)} style={chartHeight(DX_CHART)} palette="Soft">
             <ArgumentAxis title={{ text: '총재배면적' }} />
             <ValueAxis title={{ text: '조사대지면적(평)' }} />
             <Series
@@ -368,7 +380,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         <Card title="막대 — 작목별 총재배면적 평균 (상위 20)">
           <Chart
             dataSource={aggregateAvgTtlByItem(viewRows)}
-            style={chartHeight(320)}
+            style={chartHeight(DX_CHART)}
             rotated
             palette="Ocean"
           >
@@ -383,7 +395,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         <Card title="작목 분포 (도넛 Pie, 상위 10 + 기타)">
           <PieChart
             dataSource={pieItemTopN(viewRows, 10)}
-            style={chartHeight(300)}
+            style={chartHeight(DX_CHART)}
             palette="Bright"
             innerRadius={0.55}
           >
@@ -401,7 +413,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             targetField="target"
             weightField="weight"
             title={{ text: 'REFINED → Parquet → 활용' }}
-            style={chartHeight(320)}
+            style={chartHeight(DX_CHART)}
           />
         </Card>
 
@@ -411,7 +423,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             argumentField="stage"
             valueField="count"
             algorithm="dynamicHeight"
-            style={chartHeight(320)}
+            style={chartHeight(DX_CHART)}
             palette="Soft Pastel"
           />
         </Card>
@@ -423,12 +435,12 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             labelField="name"
             idField="name"
             layoutAlgorithm="squarified"
-            style={chartHeight(300)}
+            style={chartHeight(DX_CHART)}
           />
         </Card>
 
         <Card title="지표 평균 레이더 (Polar)">
-          <PolarChart dataSource={metricAveragesJeju(viewRows)} style={chartHeight(320)} palette="Soft">
+          <PolarChart dataSource={metricAveragesJeju(viewRows)} style={chartHeight(DX_CHART)} palette="Soft">
             <PolarCommon type="line" />
             <PolarSeries argumentField="metric" valueField="avg" name="표본 평균" />
             <PolarTooltip enabled />
@@ -441,7 +453,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             <div className="gauge-cell">
               <CircularGauge
                 value={lastTtl}
-                style={{ height: 220 }}
+                style={{ height: DX_GAUGE_CIRCULAR }}
                 title={{ text: '총재배면적' }}
               >
                 <CgScale
@@ -459,7 +471,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             <div className="gauge-cell">
               <LinearGauge
                 value={normTtl}
-                style={{ height: 120 }}
+                style={{ height: DX_GAUGE_LINEAR }}
                 subvalues={[33, 66]}
                 title={{ text: '총재배면적 상대위치(0~100)' }}
               >
@@ -478,7 +490,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         </Card>
 
         <Card title="마지막 행 5지표 상대 BarGauge (0~100)">
-          <BarGauge values={barGaugeVals} startValue={0} endValue={100} style={{ height: 180 }}>
+          <BarGauge values={barGaugeVals} startValue={0} endValue={100} style={{ height: DX_BAR_GAUGE }}>
             <BarGaugeLegend
               visible
               verticalAlignment="bottom"
@@ -501,7 +513,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             endScaleValue={Math.max(lastSale, saleTarget) * 1.25 || 1}
             target={saleTarget || 1}
             color="#6366f1"
-            style={{ height: 56, width: '100%' }}
+            style={{ height: DX_BULLET, width: '100%' }}
           />
         </Card>
 
@@ -512,7 +524,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             valueField="v"
             type="line"
             showMinMax
-            style={{ height: 80, width: '100%' }}
+            style={{ height: DX_SPARKLINE, width: '100%' }}
           />
         </Card>
 
@@ -521,7 +533,8 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           <p className="gauge-note">로드된 레코드 {rows.length}건 · 원본 CSV에서 앞부분 샘플</p>
         </Card>
       </div>
-    </TabScroll>
+      </TabScroll>
+    </div>
   )
 
   const tab2 = (
@@ -585,8 +598,8 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
   )
 
   return (
-    <main className="dash-shell">
-      <Toolbar className="dash-toolbar">
+    <main className="dash-shell dash-shell--flex">
+      <Toolbar className="dash-toolbar" style={{ flexShrink: 0 }}>
         <ToolbarItem location="before">
           <div>
             <div className="dash-title">2023 제주 농업경영정보조사 · 밭작물 (REFINED) 시각화</div>
@@ -615,17 +628,19 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
       ) : null}
 
       {!loadError ? (
-        <TabPanel animationEnabled swipeEnabled focusStateEnabled height="calc(100vh - 140px)">
-          <Item title="차트 · 게이지" icon="chart">
-            {tab1}
-          </Item>
-          <Item title="DataGrid" icon="mediumiconslayout">
-            {tab2}
-          </Item>
-          <Item title="PivotGrid" icon="fieldchooser">
-            {tab3}
-          </Item>
-        </TabPanel>
+        <div className="dash-inner-panel-wrap">
+          <TabPanel animationEnabled swipeEnabled focusStateEnabled height="100%" width="100%">
+            <Item title="차트 · 게이지" icon="chart">
+              {tab1}
+            </Item>
+            <Item title="DataGrid" icon="mediumiconslayout">
+              {tab2}
+            </Item>
+            <Item title="PivotGrid" icon="fieldchooser">
+              {tab3}
+            </Item>
+          </TabPanel>
+        </div>
       ) : null}
     </main>
   )
