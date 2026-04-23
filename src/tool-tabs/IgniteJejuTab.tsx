@@ -1,8 +1,31 @@
+import { useMemo } from 'react'
 import 'igniteui-webcomponents/themes/light/material.css'
+import 'igniteui-grid-lite/define'
 import { IgrGridLite } from 'igniteui-react/grid-lite'
+import {
+  IgrCategoryXAxis,
+  IgrCategoryXAxisModule,
+  IgrColumnSeries,
+  IgrColumnSeriesModule,
+  IgrDataChart,
+  IgrDataChartCategoryModule,
+  IgrDataChartCoreModule,
+  IgrFunnelChart,
+  IgrFunnelChartModule,
+  IgrLineSeries,
+  IgrLineSeriesModule,
+  IgrNumericYAxis,
+  IgrNumericYAxisModule,
+  IgrPieChart,
+  IgrPieChartModule,
+  IgrSparkline,
+  IgrSparklineModule,
+  SparklineDisplayType,
+} from 'igniteui-react-charts'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
+  cumulativeTtlSeries,
   funnelStageCounts,
   pieItemTopN,
   tileViewTopCrops,
@@ -10,6 +33,22 @@ import {
 } from '../jeju/jejuFieldCropModel'
 import { EmptyDataHint, ToolSection, type ToolRowsProps } from './shared'
 import { TabScroll } from './TabScroll'
+
+let igniteChartsRegistered = false
+function registerIgniteCharts() {
+  if (igniteChartsRegistered) return
+  igniteChartsRegistered = true
+  IgrPieChartModule.register()
+  IgrFunnelChartModule.register()
+  IgrDataChartCoreModule.register()
+  IgrDataChartCategoryModule.register()
+  IgrCategoryXAxisModule.register()
+  IgrNumericYAxisModule.register()
+  IgrColumnSeriesModule.register()
+  IgrLineSeriesModule.register()
+  IgrSparklineModule.register()
+}
+registerIgniteCharts()
 
 function SimpleBars({ items }: { items: { label: string; value: number }[] }) {
   const max = Math.max(...items.map((d) => d.value), 1)
@@ -103,6 +142,49 @@ function FunnelLanes({ stages }: { stages: { stage: string; count: number }[] })
 
 export default function IgniteJejuTab({ rows }: ToolRowsProps) {
   if (!rows.length) return <EmptyDataHint />
+
+  const ignitePieData = useMemo(() => {
+    const pts = pieItemTopN(rows, 10).map((p) => ({ name: p.bucket, count: p.count }))
+    return pts.length ? pts : [{ name: '데이터 없음', count: 1 }]
+  }, [rows])
+
+  const igniteFunnelData = useMemo(
+    () => funnelStageCounts(rows.length).map((f) => ({ stage: f.stage, count: f.count })),
+    [rows],
+  )
+
+  const igniteColumnData = useMemo(
+    () =>
+      aggregateAvgTtlByItem(rows)
+        .slice(0, 12)
+        .map((x) => ({
+          cat: x.item.length > 11 ? `${x.item.slice(0, 10)}…` : x.item,
+          avg: x.avgTtl,
+        })),
+    [rows],
+  )
+  const igniteColumnSafe =
+    igniteColumnData.length > 0 ? igniteColumnData : [{ cat: '데이터 없음', avg: 0 }]
+
+  const igniteLineData = useMemo(
+    () =>
+      aggregateCtyAvgTtl(rows, 12).map((c) => ({
+        cty: c.cty.length > 11 ? `${c.cty.slice(0, 10)}…` : c.cty,
+        cnt: c.cnt,
+      })),
+    [rows],
+  )
+  const igniteLineSafe = igniteLineData.length ? igniteLineData : [{ cty: '데이터 없음', cnt: 0 }]
+
+  const igniteSparkData = useMemo(() => {
+    const cum = cumulativeTtlSeries(rows).slice(0, 48)
+    const pts = cum.map((c, i) => ({ i, v: c.cumTtl }))
+    return pts.length ? pts : [
+      { i: 0, v: 0 },
+      { i: 1, v: 0 },
+    ]
+  }, [rows])
+
   const bars = aggregateAvgTtlByItem(rows)
     .slice(0, 16)
     .map((x) => ({ label: x.item, value: x.avgTtl }))
@@ -114,9 +196,103 @@ export default function IgniteJejuTab({ rows }: ToolRowsProps) {
 
   return (
     <TabScroll>
+      <ToolSection title="Ignite UI — igniteui-react-charts (5종)">
+        <p className="gauge-note" style={{ marginTop: 0 }}>
+          <strong>Pie</strong>·<strong>Funnel</strong>·<strong>Column</strong>에 더해 <strong>Line</strong>(시군구별 건수),{' '}
+          <strong>Sparkline</strong>(누적 총재배면적 추이)을 둡니다.
+        </p>
+        <IgrPieChart
+          height="280px"
+          width="100%"
+          dataSource={ignitePieData}
+          valueMemberPath="count"
+          labelMemberPath="name"
+          innerExtent={0.5}
+        />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 14,
+            marginTop: 14,
+          }}
+        >
+          <div>
+            <p className="gauge-note" style={{ marginTop: 0, marginBottom: 6 }}>
+              Funnel — 파이프라인 단계
+            </p>
+            <IgrFunnelChart
+              height="260px"
+              width="100%"
+              dataSource={igniteFunnelData}
+              valueMemberPath="count"
+              outerLabelMemberPath="stage"
+            />
+          </div>
+          <div>
+            <p className="gauge-note" style={{ marginTop: 0, marginBottom: 6 }}>
+              Column — 작목별 평균 총재배면적(상위 12)
+            </p>
+            <IgrDataChart height="260px" width="100%" dataSource={igniteColumnSafe} isHorizontalZoomEnabled={false}>
+              <IgrCategoryXAxis name="igColX" label="cat" />
+              <IgrNumericYAxis name="igColY" labelLocation="OutsideLeft" minimumValue={0} title="평균(평)" />
+              <IgrColumnSeries
+                name="igColS"
+                xAxisName="igColX"
+                yAxisName="igColY"
+                valueMemberPath="avg"
+                title="평균"
+                brush="#6366f1"
+              />
+            </IgrDataChart>
+          </div>
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 14,
+            marginTop: 14,
+          }}
+        >
+          <div>
+            <p className="gauge-note" style={{ marginTop: 0, marginBottom: 6 }}>
+              Line — 시군구별 건수(상위 12)
+            </p>
+            <IgrDataChart height="260px" width="100%" dataSource={igniteLineSafe} isHorizontalZoomEnabled={false}>
+              <IgrCategoryXAxis name="igLineX" label="cty" />
+              <IgrNumericYAxis name="igLineY" labelLocation="OutsideLeft" minimumValue={0} title="건수" />
+              <IgrLineSeries
+                name="igLineS"
+                xAxisName="igLineX"
+                yAxisName="igLineY"
+                valueMemberPath="cnt"
+                title="건수"
+                thickness={2.5}
+                brush="#ea580c"
+              />
+            </IgrDataChart>
+          </div>
+          <div>
+            <p className="gauge-note" style={{ marginTop: 0, marginBottom: 6 }}>
+              Sparkline — 누적 총재배면적(앞 48행)
+            </p>
+            <IgrSparkline
+              height="100px"
+              width="100%"
+              dataSource={igniteSparkData}
+              labelMemberPath="i"
+              valueMemberPath="v"
+              displayType={SparklineDisplayType.Line}
+              brush="#0d9488"
+            />
+          </div>
+        </div>
+      </ToolSection>
+
       <ToolSection title="Ignite UI — Grid Lite">
         <p className="gauge-note" style={{ marginTop: 0 }}>
-          Ignite UI React 번들에는 별도 차트 컴포넌트가 포함되어 있지 않아, 동일 데이터를 Grid + HTML 시각화로 구성했습니다.
+          <code>igniteui-grid-lite</code> 그리드와 HTML 시각화입니다.
         </p>
         <IgrGridLite
           autoGenerate

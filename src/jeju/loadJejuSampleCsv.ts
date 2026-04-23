@@ -1,5 +1,9 @@
 import Papa from 'papaparse'
-import { mapRawRowToSlim, type JejuFieldCropSlim } from './jejuFieldCropModel'
+import {
+  expandJejuFieldCropRowsForDemo,
+  mapRawRowToSlim,
+  type JejuFieldCropSlim,
+} from './jejuFieldCropModel'
 
 const CSV_URL = '/data/jeju-field-crops-sample.csv'
 
@@ -24,7 +28,7 @@ export async function loadJejuFieldCropSample(): Promise<JejuFieldCropSlim[]> {
           id += 1
           slim.push(mapRawRowToSlim(row, id))
         }
-        resolve(slim)
+        resolve(expandJejuFieldCropRowsForDemo(slim))
       },
       error: (err: unknown) => reject(err instanceof Error ? err : new Error(String(err))),
     })

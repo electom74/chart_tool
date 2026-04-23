@@ -9,23 +9,23 @@ import {
   pieItemTopN,
   ttlHistogramBins,
 } from '../jeju/jejuFieldCropModel'
-import { EmptyDataHint, ToolSection, type ToolRowsProps } from './shared'
+import { JejuDataGate, ToolSection, type ToolRowsProps } from './shared'
 import { TabScroll } from './TabScroll'
 
 registerAllModules()
 
 const hotLicenseKey = 'non-commercial-and-evaluation'
 
-export default function HandsontableJejuTab({ rows }: ToolRowsProps) {
+export default function HandsontableJejuTab(props: ToolRowsProps) {
+  const { rows } = props
   const agg = aggregateAvgTtlByItem(rows).slice(0, 20)
   const cum = cumulativeTtlSeries(rows).slice(0, 100)
   const hist = ttlHistogramBins(rows, 10)
   const cty = aggregateCtyAvgTtl(rows, 10)
   const pie = pieItemTopN(rows, 8)
 
-  if (!rows.length) return <EmptyDataHint />
-
   return (
+    <JejuDataGate {...props}>
     <TabScroll>
       <ToolSection title="Handsontable — 원본(객체 배열)">
         <div className="hot ht-theme-main" style={{ width: '100%', minHeight: 380 }}>
@@ -142,5 +142,6 @@ export default function HandsontableJejuTab({ rows }: ToolRowsProps) {
         </div>
       </ToolSection>
     </TabScroll>
+    </JejuDataGate>
   )
 }

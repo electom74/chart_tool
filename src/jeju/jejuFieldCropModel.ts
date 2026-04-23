@@ -106,7 +106,7 @@ export function ttlAreaBuckets(rows: JejuFieldCropSlim[]) {
 
 export function funnelStageCounts(rowCount: number) {
   return [
-    { stage: 'Raw 수집', count: rowCount },
+    { stage: 'Raw 수집', count: Math.max(1, rowCount) },
     { stage: '품질 검증', count: Math.max(1, rowCount - 1) },
     { stage: 'Canonical(Parquet)', count: Math.max(1, rowCount - 2) },
     { stage: 'Task-Ready', count: Math.max(1, rowCount - 3) },
@@ -177,8 +177,9 @@ export function aggregateAvgTtlByItem(rows: JejuFieldCropSlim[]) {
 
 export function sankeyPipelineLinks(rowCount: number) {
   const w = Math.max(1, Math.round(rowCount / 2))
+  const head = Math.max(1, rowCount)
   return [
-    { source: '조사 응답', target: 'REFINED 정제', weight: rowCount },
+    { source: '조사 응답', target: 'REFINED 정제', weight: head },
     { source: 'REFINED 정제', target: 'Canonical(Parquet)', weight: w + 2 },
     { source: 'Canonical(Parquet)', target: 'Task-Ready', weight: w + 1 },
     { source: 'Task-Ready', target: 'AI·정책 분석', weight: w },
@@ -286,4 +287,129 @@ export function tileViewTopCrops(rows: JejuFieldCropSlim[], limit = 16) {
         text: `${short}\n면적합 ${Math.round(sum)} · ${n}건`,
       }
     })
+}
+
+/** CSV가 짧을 때 시각화용으로 채울 목표 행 수(이상이면 확장하지 않음) */
+export const JEJU_DEMO_EXPAND_TARGET_ROWS = 1800
+
+const FALLBACK_JEJU_ITEMS = [
+  '감귤',
+  '배추',
+  '무',
+  '당근',
+  '양파',
+  '마늘',
+  '감자',
+  '고구마',
+  '옥수수',
+  '보리',
+  '메밀',
+  '상추',
+  '브로콜리',
+  '대파',
+  '쪽파',
+  '딸기',
+]
+
+const FALLBACK_JEJU_CTY = ['제주시', '서귀포시']
+
+function u01(seed: number): number {
+  let x = Math.imul(seed ^ 0x6a09e667, 0x9e3779b1)
+  x = Math.imul(x ^ (x >>> 13), 0xc2b2ae35)
+  return ((x >>> 0) & 0xffffffff) / 0x100000000
+}
+
+function jitterFinite(v: number, seed: number, relSpread: number): number {
+  const t = (u01(seed) * 2 - 1) * relSpread
+  const nv = v * (1 + t)
+  return Math.round(nv * 1000) / 1000
+}
+
+function jitterNullable(v: number | null, seed: number, relSpread: number): number | null {
+  if (v == null || !Number.isFinite(v)) return v
+  return jitterFinite(v, seed, relSpread)
+}
+
+/**
+ * 원본 행이 `minRows` 미만이면, 총재배면적이 있는 행을 시드로 순환·변주해 데모 행을 늘립니다.
+ * 이미 충분히 긴 CSV는 그대로 둡니다.
+ */
+export function expandJejuFieldCropRowsForDemo(rows: JejuFieldCropSlim[], minRows = JEJU_DEMO_EXPAND_TARGET_ROWS): JejuFieldCropSlim[] {
+  if (rows.length >= minRows) return rows
+
+  const seeds = rows.filter((r) => r.ttlCltvtnArea != null && Number.isFinite(r.ttlCltvtnArea))
+  if (!seeds.length) return rows
+
+  const itemSet = new Set<string>()
+  const ctySet = new Set<string>()
+  let mngmFallback = ''
+  for (const r of rows) {
+    const it = r.item?.trim()
+    if (it) itemSet.add(it)
+    const c = r.cty?.trim()
+    if (c) ctySet.add(c)
+    if (!mngmFallback && r.mngmSttsNm?.trim()) mngmFallback = r.mngmSttsNm.trim()
+  }
+
+  const itemsPool = [...itemSet]
+  if (itemsPool.length < 12) {
+    for (const x of FALLBACK_JEJU_ITEMS) {
+      if (itemsPool.length >= 14) break
+      if (!itemSet.has(x)) itemsPool.push(x)
+    }
+  }
+  if (!itemsPool.length) itemsPool.push('밭작물')
+
+  const ctyPool = [...ctySet]
+  if (ctyPool.length < 2) {
+    for (const x of FALLBACK_JEJU_CTY) {
+      if (!ctySet.has(x)) ctyPool.push(x)
+    }
+  }
+  if (!ctyPool.length) ctyPool.push('제주시', '서귀포시')
+
+  const out: JejuFieldCropSlim[] = rows.slice()
+
+  for (let k = rows.length; k < minRows; k += 1) {
+    const base = seeds[k % seeds.length]
+    const seed = Math.imul(k, 0x9e3779b1)
+    const item = itemsPool[(k * 17) % itemsPool.length] || '(미상)'
+    const cty = ctyPool[(k * 5) % ctyPool.length] || '(미상)'
+
+    const ttl = jitterFinite(base.ttlCltvtnArea as number, seed, 0.22)
+    const altJ = jitterNullable(base.alt, seed + 1, 0.12)
+    const pyJ = jitterNullable(base.exmnTrgtPlcAreaPy, seed + 2, 0.14)
+    const sdJ = jitterNullable(base.sdQty, seed + 3, 0.16)
+    const spqJ = jitterNullable(base.salePrdcQty, seed + 4, 0.15)
+    const saleBaseOk = base.saleAmt != null && base.saleAmt > 0 && Number.isFinite(base.saleAmt)
+    const saleJ = saleBaseOk
+      ? jitterFinite(base.saleAmt as number, seed + 5, 0.18)
+      : Math.round(30000 + u01(seed + 6) * 280000)
+
+    const altOut = altJ != null ? Math.max(0, altJ) : null
+    const pyOut = pyJ != null ? Math.max(0, pyJ) : null
+    const sdOut = sdJ != null ? Math.max(0, sdJ) : null
+    const spqOut = spqJ != null ? Math.max(0, spqJ) : null
+    const saleOut = Math.max(1, Math.round(saleJ))
+
+    out.push({
+      id: k + 1,
+      seq: k + 1,
+      srvyId: `syn-${String(k + 1).padStart(6, '0')}`,
+      listId: base.listId ? `${base.listId}-s${k}` : `L${k}`,
+      plcAddr: base.plcAddr ? `${base.plcAddr.slice(0, 40)} · 확장` : `제주 데모 주소 ${k + 1}`,
+      mngmSttsNm: mngmFallback || base.mngmSttsNm || '경영 중',
+      item,
+      cty,
+      eupmyeon: base.eupmyeon || '읍면동',
+      ttlCltvtnArea: ttl,
+      alt: altOut,
+      exmnTrgtPlcAreaPy: pyOut,
+      sdQty: sdOut,
+      salePrdcQty: spqOut,
+      saleAmt: saleOut,
+    })
+  }
+
+  return out
 }

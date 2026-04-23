@@ -130,7 +130,7 @@ export function metricAverages(rows: CanonicalManufacturingRow[]) {
 
 export function funnelStageCounts(rowCount: number) {
   return [
-    { stage: 'Raw 수집', count: rowCount },
+    { stage: 'Raw 수집', count: Math.max(1, rowCount) },
     { stage: '품질 검증', count: Math.max(1, rowCount - 1) },
     { stage: 'Canonical(Parquet)', count: Math.max(1, rowCount - 2) },
     { stage: 'Task-Ready', count: Math.max(1, rowCount - 3) },
@@ -182,8 +182,9 @@ export function pivotLongStore(rows: CanonicalManufacturingRow[]) {
 
 export function sankeyPipelineLinks(rowCount: number) {
   const w = Math.max(1, Math.round(rowCount / 2))
+  const head = Math.max(1, rowCount)
   return [
-    { source: 'Plant / VPN', target: 'Ingestion', weight: rowCount },
+    { source: 'Plant / VPN', target: 'Ingestion', weight: head },
     { source: 'Ingestion', target: 'Canonical Parquet', weight: w + 2 },
     { source: 'Canonical Parquet', target: 'Task-Ready', weight: w + 1 },
     { source: 'Task-Ready', target: 'AI 학습', weight: w },

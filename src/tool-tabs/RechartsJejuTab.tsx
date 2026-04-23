@@ -37,12 +37,13 @@ import {
   ttlHistogramBins,
   treemapItemSumTtl,
 } from '../jeju/jejuFieldCropModel'
-import { EmptyDataHint, ToolSection, type ToolRowsProps } from './shared'
+import { JejuDataGate, ToolSection, type ToolRowsProps } from './shared'
 import { TabScroll } from './TabScroll'
 
 const COLORS = ['#6366f1', '#0d9488', '#f97316', '#a855f7', '#ec4899', '#14b8a6', '#eab308', '#64748b']
 
-export default function RechartsJejuTab({ rows }: ToolRowsProps) {
+export default function RechartsJejuTab(props: ToolRowsProps) {
+  const { rows } = props
   const bar = aggregateAvgTtlByItem(rows).slice(0, 12)
   const bub = bubblePlotRows(rows, 200)
   const cum = cumulativeTtlSeries(rows).slice(0, 200)
@@ -53,9 +54,8 @@ export default function RechartsJejuTab({ rows }: ToolRowsProps) {
   const radar = metricAveragesJeju(rows)
   const tree = treemapItemSumTtl(rows).slice(0, 12)
 
-  if (!rows.length) return <EmptyDataHint />
-
   return (
+    <JejuDataGate {...props}>
     <TabScroll>
       <ToolSection title="막대 — 작목별 평균">
         <div style={{ width: '100%', height: 300 }}>
@@ -206,5 +206,6 @@ export default function RechartsJejuTab({ rows }: ToolRowsProps) {
         </div>
       </ToolSection>
     </TabScroll>
+    </JejuDataGate>
   )
 }

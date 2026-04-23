@@ -11,10 +11,11 @@ import {
   ttlHistogramBins,
   treemapItemSumTtl,
 } from '../jeju/jejuFieldCropModel'
-import { EmptyDataHint, ToolSection, type ToolRowsProps } from './shared'
+import { JejuDataGate, ToolSection, type ToolRowsProps } from './shared'
 import { TabScroll } from './TabScroll'
 
-export default function EChartsJejuTab({ rows }: ToolRowsProps) {
+export default function EChartsJejuTab(props: ToolRowsProps) {
+  const { rows } = props
   const pie = useMemo(() => pieItemTopN(rows, 10), [rows])
   const cty = useMemo(() => aggregateCtyAvgTtl(rows, 10), [rows])
   const line = useMemo(() => cumulativeTtlSeries(rows).slice(0, 240), [rows])
@@ -25,9 +26,8 @@ export default function EChartsJejuTab({ rows }: ToolRowsProps) {
   const radar = useMemo(() => metricAveragesJeju(rows), [rows])
   const tree = useMemo(() => treemapItemSumTtl(rows).slice(0, 14), [rows])
 
-  if (!rows.length) return <EmptyDataHint />
-
   return (
+    <JejuDataGate {...props}>
     <TabScroll>
       <ToolSection title="ECharts — 도넛(작목 건수)">
         <ReactECharts
@@ -156,5 +156,6 @@ export default function EChartsJejuTab({ rows }: ToolRowsProps) {
         />
       </ToolSection>
     </TabScroll>
+    </JejuDataGate>
   )
 }

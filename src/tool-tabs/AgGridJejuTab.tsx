@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { ModuleRegistry } from 'ag-grid-community'
 import type { ColDef, GridOptions } from 'ag-grid-community'
+import { AgChartsCommunityModule } from 'ag-charts-community'
 import { AllEnterpriseModule } from 'ag-grid-enterprise'
 import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
@@ -11,10 +12,11 @@ import {
   pivotLongFromJeju,
   ttlHistogramBins,
 } from '../jeju/jejuFieldCropModel'
-import { EmptyDataHint, ToolSection, type ToolRowsProps } from './shared'
+import { JejuDataGate, ToolSection, type ToolRowsProps } from './shared'
+import { AgGridJejuIntegratedCharts } from './AgGridJejuIntegratedCharts'
 import { TabScroll } from './TabScroll'
 
-ModuleRegistry.registerModules([AllEnterpriseModule])
+ModuleRegistry.registerModules([AllEnterpriseModule.with(AgChartsCommunityModule)])
 
 const mainCols: ColDef[] = [
   { field: 'seq', headerName: 'seq', width: 80, filter: 'agNumberColumnFilter', enableRowGroup: true },
@@ -36,6 +38,8 @@ const gridOpts: GridOptions = {
   rowGroupPanelShow: 'always',
   groupDisplayType: 'multipleColumns',
   animateRows: true,
+  enableCharts: true,
+  cellSelection: true,
   statusBar: {
     statusPanels: [
       { statusPanel: 'agTotalRowCountComponent', align: 'left' },
@@ -52,7 +56,8 @@ const gridOpts: GridOptions = {
   },
 }
 
-export default function AgGridJejuTab({ rows }: ToolRowsProps) {
+export default function AgGridJejuTab(props: ToolRowsProps) {
+  const { rows } = props
   const chartRows = useMemo(() => aggregateAvgTtlByItem(rows).slice(0, 16), [rows])
   const ctyRows = useMemo(() => aggregateCtyAvgTtl(rows, 12), [rows])
   const histRows = useMemo(() => ttlHistogramBins(rows, 12), [rows])
@@ -66,9 +71,8 @@ export default function AgGridJejuTab({ rows }: ToolRowsProps) {
     [],
   )
 
-  if (!rows.length) return <EmptyDataHint />
-
   return (
+    <JejuDataGate {...props}>
     <TabScroll>
       <ToolSection title="AG Grid Enterprise — 메인(그룹·상태바·사이드바)">
         <div className="ag-theme-quartz" style={{ height: 420, width: '100%' }}>
@@ -82,6 +86,7 @@ export default function AgGridJejuTab({ rows }: ToolRowsProps) {
           />
         </div>
       </ToolSection>
+      <AgGridJejuIntegratedCharts rows={rows} />
       <ToolSection title="집계 그리드 — 작목별 평균면적">
         <div className="ag-theme-quartz" style={{ height: 280, width: '100%' }}>
           <AgGridReact rowData={chartRows} columnDefs={chartCols} defaultColDef={defaultColDef} />
@@ -128,5 +133,6 @@ export default function AgGridJejuTab({ rows }: ToolRowsProps) {
         </div>
       </ToolSection>
     </TabScroll>
+    </JejuDataGate>
   )
 }

@@ -62,7 +62,6 @@ import RangeSelector, {
   Size as RsSize,
 } from 'devextreme-react/range-selector'
 import Sankey from 'devextreme-react/sankey'
-import ScrollView from 'devextreme-react/scroll-view'
 import SelectBox from 'devextreme-react/select-box'
 import Sparkline from 'devextreme-react/sparkline'
 import TabPanel, { Item } from 'devextreme-react/tab-panel'
@@ -84,6 +83,7 @@ import {
   ttlHistogramBins,
   type JejuFieldCropSlim,
 } from './jeju/jejuFieldCropModel'
+import { TabScroll } from './tool-tabs/TabScroll'
 
 function chartHeight(h: number) {
   return { height: h }
@@ -216,7 +216,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
   const rsDefault: [number, number] = [rsMin, Math.min(rsMax, rsMin + rsSpan)]
 
   const tab1 = (
-    <ScrollView height="72vh">
+    <TabScroll>
       <div className="viz-filter-bar">
         <span className="viz-filter-label">시군구 필터</span>
         <SelectBox
@@ -521,7 +521,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           <p className="gauge-note">로드된 레코드 {rows.length}건 · 원본 CSV에서 앞부분 샘플</p>
         </Card>
       </div>
-    </ScrollView>
+    </TabScroll>
   )
 
   const tab2 = (

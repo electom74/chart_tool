@@ -1,0 +1,102 @@
+import type { ReactNode } from 'react'
+import {
+  Chart,
+  ChartCategoryAxis,
+  ChartCategoryAxisItem,
+  ChartLegend,
+  ChartSeries,
+  ChartSeriesItem,
+  ChartTooltip,
+  ChartValueAxis,
+  ChartValueAxisItem,
+} from '@progress/kendo-react-charts'
+import { aggregateCtyAvgTtl, pieItemTopN, type JejuFieldCropSlim } from '../jeju/jejuFieldCropModel'
+import { JejuDataGate, ToolSection, type ToolRowsProps } from './shared'
+import { JejuKendoChartGallery } from './JejuKendoChartGallery'
+import { TabScroll } from './TabScroll'
+
+function Mini({ title, height, children }: { title: string; height: number; children: ReactNode }) {
+  return (
+    <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 6, background: '#fff' }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: '#334155', marginBottom: 2 }}>{title}</div>
+      <Chart style={{ height }}>
+        <ChartTooltip />
+        <ChartLegend visible={false} />
+        {children}
+      </Chart>
+    </div>
+  )
+}
+
+function KendoExtraTwo({ rows }: { rows: JejuFieldCropSlim[] }) {
+  const pie = pieItemTopN(rows, 8)
+  const cty = aggregateCtyAvgTtl(rows, 7)
+  const h = 148
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+        gap: 10,
+        marginTop: 10,
+      }}
+    >
+      <Mini title="11. Pie — 작목 건수" height={h}>
+        <ChartSeries>
+          <ChartSeriesItem
+            type="pie"
+            data={pie.length ? pie : [{ bucket: '—', count: 1 }]}
+            categoryField="bucket"
+            field="count"
+          />
+        </ChartSeries>
+      </Mini>
+      <Mini title="12. Stacked column — 시군 건수·평균면적(스택)" height={h}>
+        <ChartCategoryAxis>
+          <ChartCategoryAxisItem />
+        </ChartCategoryAxis>
+        <ChartValueAxis>
+          <ChartValueAxisItem />
+        </ChartValueAxis>
+        <ChartSeries>
+          <ChartSeriesItem
+            type="column"
+            stack={{ group: 'g' }}
+            data={cty}
+            field="cnt"
+            categoryField="cty"
+            name="건수"
+            color="#6366f1"
+          />
+          <ChartSeriesItem
+            type="column"
+            stack={{ group: 'g' }}
+            data={cty}
+            field="avgTtl"
+            categoryField="cty"
+            name="평균면적"
+            color="#14b8a6"
+          />
+        </ChartSeries>
+      </Mini>
+    </div>
+  )
+}
+
+export default function KendoJejuTab(props: ToolRowsProps) {
+  const { rows } = props
+  return (
+    <JejuDataGate {...props}>
+      <TabScroll>
+        <ToolSection title="KendoReact Chart — 제주 데이터 시각화(12종)">
+          <p className="gauge-note" style={{ marginTop: 0 }}>
+            이 탭은 <strong>KendoReact Chart</strong>만 사용합니다. 아래 10종은 공통 갤러리, 이어서 같은 데이터로 Pie·스택
+            Column을 추가했습니다.
+          </p>
+          <JejuKendoChartGallery rows={rows} />
+          <KendoExtraTwo rows={rows} />
+        </ToolSection>
+      </TabScroll>
+    </JejuDataGate>
+  )
+}
