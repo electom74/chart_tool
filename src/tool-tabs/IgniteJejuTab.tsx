@@ -22,6 +22,7 @@ import {
   IgrSparklineModule,
   SparklineDisplayType,
 } from 'igniteui-react-charts'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -198,8 +199,9 @@ export default function IgniteJejuTab({ rows }: ToolRowsProps) {
     <TabScroll>
       <ToolSection title="Ignite UI — igniteui-react-charts (5종)">
         <p className="gauge-note" style={{ marginTop: 0 }}>
-          <strong>Pie</strong>·<strong>Funnel</strong>·<strong>Column</strong>에 더해 <strong>Line</strong>(시군구별 건수),{' '}
-          <strong>Sparkline</strong>(누적 총재배면적 추이)을 둡니다.
+          <strong>Pie</strong>·<strong>Funnel</strong>·<strong>Column</strong>에 더해 <strong>Line</strong>
+          {`(cty·${BAT_COL.soc_est_end} 구간별 건수)`}, <strong>Sparkline</strong>
+          {`(누적 ${BAT_COL.delta_q_Ah} 추이)`}을 둡니다.
         </p>
         <IgrPieChart
           height="280px"
@@ -231,17 +233,17 @@ export default function IgniteJejuTab({ rows }: ToolRowsProps) {
           </div>
           <div>
             <p className="gauge-note" style={{ marginTop: 0, marginBottom: 6 }}>
-              Column — 작목별 평균 총재배면적(상위 12)
+              {`Column — ${BAT_COL.cyc_condition_age_type}별 평균 ${BAT_COL.delta_q_Ah}(상위 12)`}
             </p>
             <IgrDataChart height="260px" width="100%" dataSource={igniteColumnSafe} isHorizontalZoomEnabled={false}>
               <IgrCategoryXAxis name="igColX" label="cat" />
-              <IgrNumericYAxis name="igColY" labelLocation="OutsideLeft" minimumValue={0} title="평균(평)" />
+              <IgrNumericYAxis name="igColY" labelLocation="OutsideLeft" minimumValue={0} title={`평균 ${BAT_COL.delta_q_Ah}`} />
               <IgrColumnSeries
                 name="igColS"
                 xAxisName="igColX"
                 yAxisName="igColY"
                 valueMemberPath="avg"
-                title="평균"
+                title={`평균 ${BAT_COL.delta_q_Ah}`}
                 brush="#6366f1"
               />
             </IgrDataChart>
@@ -257,7 +259,7 @@ export default function IgniteJejuTab({ rows }: ToolRowsProps) {
         >
           <div>
             <p className="gauge-note" style={{ marginTop: 0, marginBottom: 6 }}>
-              Line — 시군구별 건수(상위 12)
+              {`Line — cty·${BAT_COL.soc_est_end} 구간별 건수(상위 12)`}
             </p>
             <IgrDataChart height="260px" width="100%" dataSource={igniteLineSafe} isHorizontalZoomEnabled={false}>
               <IgrCategoryXAxis name="igLineX" label="cty" />
@@ -275,7 +277,7 @@ export default function IgniteJejuTab({ rows }: ToolRowsProps) {
           </div>
           <div>
             <p className="gauge-note" style={{ marginTop: 0, marginBottom: 6 }}>
-              Sparkline — 누적 총재배면적(앞 48행)
+              {`Sparkline — 누적 ${BAT_COL.delta_q_Ah}(앞 48행)`}
             </p>
             <IgrSparkline
               height="100px"
@@ -300,7 +302,7 @@ export default function IgniteJejuTab({ rows }: ToolRowsProps) {
           style={{ height: 400, display: 'block' }}
         />
       </ToolSection>
-      <ToolSection title="HTML — 작목 타일(면적합)">
+      <ToolSection title={`HTML — ${BAT_COL.cyc_condition_age_type} 타일(${BAT_COL.delta_q_Ah} 합)`}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           {tiles.map((t, i) => (
             <div
@@ -321,16 +323,16 @@ export default function IgniteJejuTab({ rows }: ToolRowsProps) {
           ))}
         </div>
       </ToolSection>
-      <ToolSection title="HTML — 면적 구간(히트맵 스타일)">
+      <ToolSection title={`HTML — ${BAT_COL.delta_q_Ah} 구간(히트맵 스타일)`}>
         <HeatBuckets rows={buckets} />
       </ToolSection>
-      <ToolSection title="HTML — 평균면적 막대">
+      <ToolSection title={`HTML — 평균 ${BAT_COL.delta_q_Ah} 막대`}>
         <SimpleBars items={bars} />
       </ToolSection>
-      <ToolSection title="HTML — 작목 건수 막대">
+      <ToolSection title={`HTML — ${BAT_COL.cyc_condition_age_type} 건수 막대`}>
         <SimpleBars items={pieBars} />
       </ToolSection>
-      <ToolSection title="HTML — 시군 건수 막대">
+      <ToolSection title={`HTML — cty(${BAT_COL.soc_est_end}) 건수 막대`}>
         <SimpleBars items={cty} />
       </ToolSection>
       <ToolSection title="HTML — 퍼널 레인">

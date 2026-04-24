@@ -1,6 +1,7 @@
 import { useMemo, type ReactNode } from 'react'
 import { Chart as ChartJS, registerables } from 'chart.js'
 import { Bar, Bubble, Doughnut, Line, Pie, PolarArea, Radar, Scatter } from 'react-chartjs-2'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -74,13 +75,15 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
   return (
     <JejuDataGate {...props}>
       <TabScroll>
-        <ToolSection title="Chart.js — 막대(작목 평균)">
+        <ToolSection title={`Chart.js — 막대(${BAT_COL.cyc_condition_age_type} 평균 ${BAT_COL.delta_q_Ah})`}>
           <ChartWrap>
             <Bar
               height={CH}
               data={{
                 labels: agg.map((a) => a.item),
-                datasets: [{ label: '평균', data: agg.map((a) => a.avgTtl), backgroundColor: 'rgba(99,102,241,0.7)' }],
+                datasets: [
+                  { label: `평균 ${BAT_COL.delta_q_Ah}`, data: agg.map((a) => a.avgTtl), backgroundColor: 'rgba(99,102,241,0.7)' },
+                ],
               }}
               options={{
                 ...baseOpts,
@@ -110,7 +113,7 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
             />
           </ChartWrap>
         </ToolSection>
-        <ToolSection title="Chart.js — 도넛(작목 건수)">
+        <ToolSection title={`Chart.js — 도넛(${BAT_COL.cyc_condition_age_type} 건수)`}>
           <ChartWrap>
             <Doughnut
               height={CH}
@@ -127,7 +130,7 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
             />
           </ChartWrap>
         </ToolSection>
-        <ToolSection title="Chart.js — 그룹 막대(시군)">
+        <ToolSection title={`Chart.js — 그룹 막대(cty·${BAT_COL.soc_est_end} 구간)`}>
           <ChartWrap>
             <Bar
               height={CH}
@@ -135,21 +138,21 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
                 labels: cty.map((c) => c.cty),
                 datasets: [
                   { label: '건수', data: cty.map((c) => c.cnt), backgroundColor: 'rgba(99,102,241,0.65)' },
-                  { label: '평균면적', data: cty.map((c) => c.avgTtl), backgroundColor: 'rgba(249,115,22,0.65)' },
+                  { label: `평균 ${BAT_COL.delta_q_Ah}`, data: cty.map((c) => c.avgTtl), backgroundColor: 'rgba(249,115,22,0.65)' },
                 ],
               }}
               options={baseOpts}
             />
           </ChartWrap>
         </ToolSection>
-        <ToolSection title="Chart.js — 버블(면적·대지)">
+        <ToolSection title={`Chart.js — 버블(${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s})`}>
           <ChartWrap>
             <Bubble
               height={CH}
               data={{
                 datasets: [
                   {
-                    label: '조사지',
+                    label: `${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`,
                     data: bub,
                     backgroundColor: 'rgba(13,148,136,0.45)',
                   },
@@ -159,14 +162,14 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
                 ...baseOpts,
                 scales: {
                   ...baseOpts.scales,
-                  x: { ...baseOpts.scales.x, title: { display: true, text: '총재배면적', font: { size: 8 } } },
-                  y: { ...baseOpts.scales.y, title: { display: true, text: '조사대지(평)', font: { size: 8 } } },
+                  x: { ...baseOpts.scales.x, title: { display: true, text: BAT_COL.delta_q_Ah, font: { size: 8 } } },
+                  y: { ...baseOpts.scales.y, title: { display: true, text: BAT_COL.cyc_duration_s, font: { size: 8 } } },
                 },
               }}
             />
           </ChartWrap>
         </ToolSection>
-        <ToolSection title="Chart.js — 레이더(지표 평균)">
+        <ToolSection title="Chart.js — 레이더(측정 컬럼 평균)">
           <ChartWrap>
             <Radar
               height={CH}
@@ -208,7 +211,7 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
           </ChartWrap>
         </ToolSection>
 
-        <ToolSection title="Chart.js — Pie(작목 건수)">
+        <ToolSection title={`Chart.js — Pie(${BAT_COL.cyc_condition_age_type} 건수)`}>
           <ChartWrap>
             <Pie
               height={CH}
@@ -226,7 +229,7 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
           </ChartWrap>
         </ToolSection>
 
-        <ToolSection title="Chart.js — Polar area(시군 건수)">
+        <ToolSection title={`Chart.js — Polar area(cty·${BAT_COL.soc_est_end} 구간 건수)`}>
           <ChartWrap>
             <PolarArea
               height={CH}
@@ -244,7 +247,7 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
           </ChartWrap>
         </ToolSection>
 
-        <ToolSection title="Chart.js — Scatter(seq × 총재배면적)">
+        <ToolSection title={`Chart.js — Scatter(${BAT_COL.seq} × ${BAT_COL.delta_q_Ah})`}>
           <ChartWrap>
             <Scatter
               height={CH}
@@ -262,14 +265,18 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
                 ...baseOpts,
                 scales: {
                   x: { type: 'linear' as const, title: { display: true, text: 'seq', font: { size: 8 } }, ticks: { font: { size: 7 } } },
-                  y: { type: 'linear' as const, title: { display: true, text: '면적', font: { size: 8 } }, ticks: { font: { size: 7 } } },
+                  y: {
+                    type: 'linear' as const,
+                    title: { display: true, text: BAT_COL.delta_q_Ah, font: { size: 8 } },
+                    ticks: { font: { size: 7 } },
+                  },
                 },
               }}
             />
           </ChartWrap>
         </ToolSection>
 
-        <ToolSection title="Chart.js — 스택 막대(시군 건수·평균/10)">
+        <ToolSection title={`Chart.js — 스택 막대(cty·건수·${BAT_COL.delta_q_Ah}/10)`}>
           <ChartWrap>
             <Bar
               height={CH}
@@ -277,7 +284,7 @@ export default function ChartJsJejuTab(props: ToolRowsProps) {
                 labels: cty.map((c) => c.cty),
                 datasets: [
                   { label: '건수', data: cty.map((c) => c.cnt), backgroundColor: 'rgba(99,102,241,0.75)' },
-                  { label: '평균/10', data: cty.map((c) => c.avgTtl / 10), backgroundColor: 'rgba(249,115,22,0.75)' },
+                  { label: `${BAT_COL.delta_q_Ah}/10`, data: cty.map((c) => c.avgTtl / 10), backgroundColor: 'rgba(249,115,22,0.75)' },
                 ],
               }}
               options={{

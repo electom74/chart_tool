@@ -5,6 +5,7 @@ import '@grapecity/wijmo.styles/themes/material/wijmo.theme.material.teal-blue.c
 import { useMemo } from 'react'
 import { FlexChart, FlexPie } from '@grapecity/wijmo.react.chart'
 import { FlexGrid } from '@grapecity/wijmo.react.grid'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -47,9 +48,9 @@ export default function WijmoJejuTab(props: ToolRowsProps) {
           itemsSource={bar}
           bindingX="item"
           chartType="Column"
-          header="평균 총재배면적"
-          axisY={{ title: '평균' }}
-          series={[{ name: '평균', binding: 'avgTtl' }]}
+          header={`평균 ${BAT_COL.delta_q_Ah}`}
+          axisY={{ title: `평균 ${BAT_COL.delta_q_Ah}` }}
+          series={[{ name: `평균 ${BAT_COL.delta_q_Ah}`, binding: 'avgTtl' }]}
           legend={{ position: Position.Bottom }}
           style={{ height: 300 }}
         />
@@ -59,8 +60,8 @@ export default function WijmoJejuTab(props: ToolRowsProps) {
           itemsSource={line}
           bindingX="seq"
           chartType="Line"
-          header="누적 총재배면적"
-          series={[{ name: '누적', binding: 'cumTtl' }]}
+          header={`누적 ${BAT_COL.delta_q_Ah}`}
+          series={[{ name: `누적 ${BAT_COL.delta_q_Ah}`, binding: 'cumTtl' }]}
           legend={{ position: Position.Bottom }}
           style={{ height: 280 }}
         />
@@ -70,7 +71,7 @@ export default function WijmoJejuTab(props: ToolRowsProps) {
           itemsSource={pie}
           bindingName="bucket"
           binding="count"
-          header="작목 건수"
+          header={`${BAT_COL.cyc_condition_age_type} 건수`}
           legend={{ position: Position.Right }}
           style={{ height: 300 }}
         />
@@ -87,15 +88,15 @@ export default function WijmoJejuTab(props: ToolRowsProps) {
           style={{ height: 280 }}
         />
       </ToolSection>
-      <ToolSection title="Wijmo — FlexChart 그룹 Column(시군)">
+      <ToolSection title={`Wijmo — FlexChart 그룹 Column(cty·${BAT_COL.soc_est_end})`}>
         <FlexChart
           itemsSource={cty}
           bindingX="cty"
           chartType="Column"
-          header="건수 / 평균면적"
+          header={`건수 / 평균 ${BAT_COL.delta_q_Ah}`}
           series={[
             { name: '건수', binding: 'cnt' },
-            { name: '평균면적', binding: 'avgTtl' },
+            { name: `평균 ${BAT_COL.delta_q_Ah}`, binding: 'avgTtl' },
           ]}
           legend={{ position: Position.Bottom }}
           style={{ height: 320 }}
@@ -107,21 +108,21 @@ export default function WijmoJejuTab(props: ToolRowsProps) {
           itemsSource={line}
           bindingX="seq"
           chartType={ChartType.Area}
-          header="누적 총재배면적 (영역)"
-          series={[{ name: '누적', binding: 'cumTtl' }]}
+          header={`누적 ${BAT_COL.delta_q_Ah} (영역)`}
+          series={[{ name: `누적 ${BAT_COL.delta_q_Ah}`, binding: 'cumTtl' }]}
           legend={{ position: Position.Bottom }}
           style={{ height: 260 }}
         />
       </ToolSection>
 
-      <ToolSection title="Wijmo — FlexChart Spline(작목 평균)">
+      <ToolSection title={`Wijmo — FlexChart Spline(${BAT_COL.cyc_condition_age_type}·평균 ${BAT_COL.delta_q_Ah})`}>
         <FlexChart
           itemsSource={bar}
           bindingX="item"
           chartType={ChartType.Spline}
-          header="작목별 평균 총재배면적 (스플라인)"
-          axisY={{ title: '평균(평)' }}
-          series={[{ name: '평균', binding: 'avgTtl' }]}
+          header={`${BAT_COL.cyc_condition_age_type}별 평균 ${BAT_COL.delta_q_Ah} (스플라인)`}
+          axisY={{ title: `평균 ${BAT_COL.delta_q_Ah}` }}
+          series={[{ name: `평균 ${BAT_COL.delta_q_Ah}`, binding: 'avgTtl' }]}
           legend={{ position: Position.Bottom }}
           style={{ height: 280 }}
         />
@@ -139,41 +140,41 @@ export default function WijmoJejuTab(props: ToolRowsProps) {
         />
       </ToolSection>
 
-      <ToolSection title="Wijmo — FlexChart Scatter(seq × 총재배면적)">
+      <ToolSection title={`Wijmo — FlexChart Scatter(${BAT_COL.seq} × ${BAT_COL.delta_q_Ah})`}>
         <FlexChart
           itemsSource={scatterSeqTtl}
           bindingX="vx"
           chartType={ChartType.Scatter}
-          header="행 순서 vs 총재배면적"
-          axisX={{ title: 'seq' }}
-          axisY={{ title: '면적' }}
+          header={`${BAT_COL.seq} vs ${BAT_COL.delta_q_Ah}`}
+          axisX={{ title: BAT_COL.seq }}
+          axisY={{ title: BAT_COL.delta_q_Ah }}
           series={[{ name: '표본', binding: 'vy' }]}
           legend={{ position: Position.Bottom }}
           style={{ height: 280 }}
         />
       </ToolSection>
 
-      <ToolSection title="Wijmo — FlexChart Step(시군 건수)">
+      <ToolSection title={`Wijmo — FlexChart Step(cty·${BAT_COL.soc_est_end} 건수)`}>
         <FlexChart
           itemsSource={cty}
           bindingX="cty"
           chartType={ChartType.Step}
-          header="시군별 건수 (스텝)"
+          header={`cty별 건수 (${BAT_COL.soc_est_end} 구간, 스텝)`}
           series={[{ name: '건수', binding: 'cnt' }]}
           legend={{ position: Position.Bottom }}
           style={{ height: 280 }}
         />
       </ToolSection>
 
-      <ToolSection title="Wijmo — FlexChart Bubble(면적·대지·판매)">
+      <ToolSection title={`Wijmo — FlexChart Bubble(${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}·${BAT_COL.saleAmt_primary})`}>
         <FlexChart
           itemsSource={bubble}
           bindingX="bx"
           chartType={ChartType.Bubble}
-          header="총재배면적 × 조사대지면적, 크기=판매금액"
-          axisX={{ title: '총재배면적' }}
-          axisY={{ title: '조사대지(평)' }}
-          series={[{ name: '농가', binding: 'by,bsize' }]}
+          header={`${BAT_COL.delta_q_Ah} × ${BAT_COL.cyc_duration_s}, 크기=${BAT_COL.saleAmt_primary}`}
+          axisX={{ title: BAT_COL.delta_q_Ah }}
+          axisY={{ title: BAT_COL.cyc_duration_s }}
+          series={[{ name: `${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`, binding: 'by,bsize' }]}
           legend={{ position: Position.Bottom }}
           style={{ height: 300 }}
         />

@@ -1,5 +1,6 @@
 import ReactECharts from 'echarts-for-react'
 import { useMemo } from 'react'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -29,10 +30,10 @@ export default function EChartsJejuTab(props: ToolRowsProps) {
   return (
     <JejuDataGate {...props}>
     <TabScroll>
-      <ToolSection title="ECharts — 도넛(작목 건수)">
+      <ToolSection title={`ECharts — 도넛(${BAT_COL.cyc_condition_age_type} 건수)`}>
         <ReactECharts
           option={{
-            title: { text: '작목 건수', left: 'center' },
+            title: { text: `${BAT_COL.cyc_condition_age_type} 건수`, left: 'center' },
             tooltip: { trigger: 'item' },
             series: [
               {
@@ -45,43 +46,43 @@ export default function EChartsJejuTab(props: ToolRowsProps) {
           style={{ height: 300 }}
         />
       </ToolSection>
-      <ToolSection title="ECharts — 그룹 막대(시군)">
+      <ToolSection title={`ECharts — 그룹 막대(cty·${BAT_COL.soc_est_end} 구간)`}>
         <ReactECharts
           option={{
-            title: { text: '시군별 건수·평균면적' },
+            title: { text: `cty별 건수·평균 ${BAT_COL.delta_q_Ah}` },
             tooltip: { trigger: 'axis' },
-            legend: { data: ['건수', '평균 총재배면적'] },
+            legend: { data: ['건수', `평균 ${BAT_COL.delta_q_Ah}`] },
             xAxis: { type: 'category', data: cty.map((c) => c.cty) },
             yAxis: { type: 'value' },
             series: [
               { name: '건수', type: 'bar', data: cty.map((c) => c.cnt) },
-              { name: '평균 총재배면적', type: 'bar', data: cty.map((c) => c.avgTtl) },
+              { name: `평균 ${BAT_COL.delta_q_Ah}`, type: 'bar', data: cty.map((c) => c.avgTtl) },
             ],
           }}
           style={{ height: 320 }}
         />
       </ToolSection>
-      <ToolSection title="ECharts — 라인(누적)">
+      <ToolSection title={`ECharts — 라인(누적 ${BAT_COL.delta_q_Ah})`}>
         <ReactECharts
           option={{
-            title: { text: '누적 총재배면적' },
+            title: { text: `누적 ${BAT_COL.delta_q_Ah}` },
             tooltip: { trigger: 'axis' },
             xAxis: { type: 'category', data: line.map((l) => String(l.seq)) },
             yAxis: { type: 'value' },
-            series: [{ type: 'line', smooth: true, data: line.map((l) => l.cumTtl), name: '누적' }],
+            series: [{ type: 'line', smooth: true, data: line.map((l) => l.cumTtl), name: `누적 ${BAT_COL.delta_q_Ah}` }],
           }}
           style={{ height: 280 }}
         />
       </ToolSection>
-      <ToolSection title="ECharts — 가로 막대(작목 평균)">
+      <ToolSection title={`ECharts — 가로 막대(${BAT_COL.cyc_condition_age_type}·평균 ${BAT_COL.delta_q_Ah})`}>
         <ReactECharts
           option={{
-            title: { text: '작목별 평균면적' },
+            title: { text: `${BAT_COL.cyc_condition_age_type}별 평균 ${BAT_COL.delta_q_Ah}` },
             tooltip: { trigger: 'axis' },
             grid: { left: 120, right: 24, top: 48, bottom: 24 },
             xAxis: { type: 'value' },
             yAxis: { type: 'category', data: bar.map((b) => b.item) },
-            series: [{ type: 'bar', data: bar.map((b) => b.avgTtl), name: '평균' }],
+            series: [{ type: 'bar', data: bar.map((b) => b.avgTtl), name: `평균 ${BAT_COL.delta_q_Ah}` }],
           }}
           style={{ height: 340 }}
         />
@@ -89,7 +90,7 @@ export default function EChartsJejuTab(props: ToolRowsProps) {
       <ToolSection title="ECharts — 히스토그램">
         <ReactECharts
           option={{
-            title: { text: '총재배면적 구간별 건수' },
+            title: { text: `${BAT_COL.delta_q_Ah} 구간별 건수` },
             tooltip: { trigger: 'axis' },
             xAxis: { type: 'category', data: hist.map((h) => h.bin), axisLabel: { rotate: 28 } },
             yAxis: { type: 'value' },
@@ -101,10 +102,10 @@ export default function EChartsJejuTab(props: ToolRowsProps) {
       <ToolSection title="ECharts — 산점">
         <ReactECharts
           option={{
-            title: { text: '면적 × 조사대지' },
+            title: { text: `${BAT_COL.delta_q_Ah} × ${BAT_COL.cyc_duration_s}` },
             tooltip: { trigger: 'item' },
-            xAxis: { type: 'value', name: '총재배면적' },
-            yAxis: { type: 'value', name: '조사대지(평)' },
+            xAxis: { type: 'value', name: BAT_COL.delta_q_Ah },
+            yAxis: { type: 'value', name: BAT_COL.cyc_duration_s },
             series: [{ type: 'scatter', data: scat, symbolSize: 8 }],
           }}
           style={{ height: 300 }}
@@ -126,10 +127,10 @@ export default function EChartsJejuTab(props: ToolRowsProps) {
           style={{ height: 320 }}
         />
       </ToolSection>
-      <ToolSection title="ECharts — 레이더(지표 평균)">
+      <ToolSection title="ECharts — 레이더(측정 컬럼 평균)">
         <ReactECharts
           option={{
-            title: { text: '지표 평균' },
+            title: { text: '측정 컬럼 평균' },
             tooltip: {},
             radar: {
               indicator: radar.map((r) => ({ name: r.metric, max: Math.max(...radar.map((x) => x.avg), 1) * 1.2 })),
@@ -142,7 +143,7 @@ export default function EChartsJejuTab(props: ToolRowsProps) {
       <ToolSection title="ECharts — 트리맵">
         <ReactECharts
           option={{
-            title: { text: '작목별 면적 합' },
+            title: { text: `${BAT_COL.cyc_condition_age_type}별 ${BAT_COL.delta_q_Ah} 합` },
             tooltip: { formatter: '{b}: {c}' },
             series: [
               {

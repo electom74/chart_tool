@@ -1,5 +1,7 @@
 /** 대시보드 공통 시각화용 슬림 행(농업·셀 CSV 등 매핑 대상) */
 
+import { BAT_COL } from './batteryCsvColumnLabels'
+
 export type JejuFieldCropSlim = {
   id: number
   seq: number
@@ -51,12 +53,12 @@ export function pivotLongFromJeju(rows: JejuFieldCropSlim[]) {
     'ttlCltvtnArea' | 'alt' | 'exmnTrgtPlcAreaPy' | 'sdQty' | 'salePrdcQty' | 'saleAmt'
   >
   const keys: { field: M; cap: string }[] = [
-    { field: 'ttlCltvtnArea', cap: '총재배면적' },
-    { field: 'alt', cap: '고도' },
-    { field: 'exmnTrgtPlcAreaPy', cap: '조사대지면적(평)' },
-    { field: 'sdQty', cap: '파종량' },
-    { field: 'salePrdcQty', cap: '판매생산량' },
-    { field: 'saleAmt', cap: '판매금액' },
+    { field: 'ttlCltvtnArea', cap: BAT_COL.delta_q_Ah },
+    { field: 'alt', cap: BAT_COL.t_end_degC },
+    { field: 'exmnTrgtPlcAreaPy', cap: BAT_COL.cyc_duration_s },
+    { field: 'sdQty', cap: BAT_COL.soh_cap_soc_est_start },
+    { field: 'salePrdcQty', cap: BAT_COL.salePrdcQty_primary },
+    { field: 'saleAmt', cap: BAT_COL.saleAmt_primary },
   ]
   const flat: {
     srvyKey: string
@@ -98,9 +100,9 @@ export function ttlAreaBuckets(rows: JejuFieldCropSlim[]) {
     else midC += 1
   }
   return [
-    { bucket: '총재배면적 하위', count: low },
-    { bucket: '총재배면적 중간', count: midC },
-    { bucket: '총재배면적 상위', count: high },
+    { bucket: `${BAT_COL.delta_q_Ah} 하위`, count: low },
+    { bucket: `${BAT_COL.delta_q_Ah} 중간`, count: midC },
+    { bucket: `${BAT_COL.delta_q_Ah} 상위`, count: high },
   ].filter((x) => x.count > 0)
 }
 
@@ -132,11 +134,11 @@ export function metricAveragesJeju(rows: JejuFieldCropSlim[]) {
     return Math.round(xs.reduce((a, b) => a + b, 0) / xs.length)
   }
   return [
-    { metric: '총재배면적', avg: avg((r) => r.ttlCltvtnArea) },
-    { metric: '고도', avg: avg((r) => r.alt) },
-    { metric: '조사대지면적', avg: avg((r) => r.exmnTrgtPlcAreaPy) },
-    { metric: '파종량', avg: avg((r) => r.sdQty) },
-    { metric: '판매금액', avg: avg((r) => r.saleAmt) },
+    { metric: BAT_COL.delta_q_Ah, avg: avg((r) => r.ttlCltvtnArea) },
+    { metric: BAT_COL.t_end_degC, avg: avg((r) => r.alt) },
+    { metric: BAT_COL.cyc_duration_s, avg: avg((r) => r.exmnTrgtPlcAreaPy) },
+    { metric: BAT_COL.soh_cap_soc_est_start, avg: avg((r) => r.sdQty) },
+    { metric: BAT_COL.saleAmt_primary, avg: avg((r) => r.saleAmt) },
   ]
 }
 
@@ -151,7 +153,7 @@ export function pieItemTopN(rows: JejuFieldCropSlim[], top = 10) {
   const tail = sorted.slice(top)
   const other = tail.reduce((a, [, c]) => a + c, 0)
   const out = head.map(([bucket, count]) => ({ bucket, count }))
-  if (other > 0) out.push({ bucket: '기타 작목', count: other })
+  if (other > 0) out.push({ bucket: `기타 (${BAT_COL.cyc_condition_age_type})`, count: other })
   return out
 }
 
@@ -179,14 +181,14 @@ export function sankeyPipelineLinks(rowCount: number) {
   const w = Math.max(1, Math.round(rowCount / 2))
   const head = Math.max(1, rowCount)
   return [
-    { source: '조사 응답', target: 'REFINED 정제', weight: head },
+    { source: 'cell_eocv2 행', target: 'REFINED 정제', weight: head },
     { source: 'REFINED 정제', target: 'Canonical(Parquet)', weight: w + 2 },
     { source: 'Canonical(Parquet)', target: 'Task-Ready', weight: w + 1 },
     { source: 'Task-Ready', target: 'AI·정책 분석', weight: w },
   ]
 }
 
-/** 총재배면적 분포 히스토그램 */
+/** `ttlCltvtnArea`(배터리 CSV에서는 주로 `delta_q_Ah` 매핑) 분포 히스토그램 */
 export function ttlHistogramBins(rows: JejuFieldCropSlim[], binCount = 12) {
   const vals = rows.map((r) => r.ttlCltvtnArea).filter((v): v is number => v != null && Number.isFinite(v))
   if (!vals.length) return []
@@ -211,7 +213,7 @@ export function ttlHistogramBins(rows: JejuFieldCropSlim[], binCount = 12) {
   return bins
 }
 
-/** 누적 총재배면적 (step) */
+/** 누적 `ttlCltvtnArea` / `delta_q_Ah` 표시값 (step) */
 export function cumulativeTtlSeries(rows: JejuFieldCropSlim[]) {
   let s = 0
   const xs = rows
@@ -223,7 +225,7 @@ export function cumulativeTtlSeries(rows: JejuFieldCropSlim[]) {
   })
 }
 
-/** 버블: 면적–조사대지–판매금액(크기) */
+/** 버블: `delta_q_Ah`–`cyc_duration_s`–`saleAmt`(Wh 파생, 크기) */
 export function bubblePlotRows(rows: JejuFieldCropSlim[], limit = 500) {
   return rows
     .filter(
@@ -244,7 +246,7 @@ export function bubblePlotRows(rows: JejuFieldCropSlim[], limit = 500) {
     }))
 }
 
-/** 시군구별 건수·평균 면적 (그룹 막대용) */
+/** `cty`(soc_est_end 구간)별 건수·평균 `delta_q_Ah` 표시값 */
 export function aggregateCtyAvgTtl(rows: JejuFieldCropSlim[], limit = 14) {
   const m = new Map<string, { sum: number; n: number }>()
   for (const r of rows) {
@@ -266,7 +268,7 @@ export function aggregateCtyAvgTtl(rows: JejuFieldCropSlim[], limit = 14) {
     .slice(0, limit)
 }
 
-/** TileView용 상위 작목 카드 */
+/** TileView용 상위 `cyc_condition+age_type` 카드 */
 export function tileViewTopCrops(rows: JejuFieldCropSlim[], limit = 16) {
   const m = new Map<string, { sum: number; n: number }>()
   for (const r of rows) {
@@ -284,7 +286,7 @@ export function tileViewTopCrops(rows: JejuFieldCropSlim[], limit = 16) {
     .map(([item, { sum, n }]) => {
       const short = item.length > 14 ? `${item.slice(0, 13)}…` : item
       return {
-        text: `${short}\n면적합 ${Math.round(sum)} · ${n}건`,
+        text: `${short}\n${BAT_COL.delta_q_Ah} 합 ${Math.round(sum)} · ${n}건`,
       }
     })
 }

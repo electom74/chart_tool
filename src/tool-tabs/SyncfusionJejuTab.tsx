@@ -35,6 +35,7 @@ import {
   Zoom,
 } from '@syncfusion/ej2-react-charts'
 import { ColumnDirective, ColumnsDirective, GridComponent, Page, Search, Sort, Toolbar } from '@syncfusion/ej2-react-grids'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -173,11 +174,11 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         >
           <ColumnsDirective>
             <ColumnDirective key="sf-col-seq" field="seq" headerText="seq" width="70" />
-            <ColumnDirective key="sf-col-item" field="item" headerText="작목" width="120" />
-            <ColumnDirective key="sf-col-cty" field="cty" headerText="시군" width="100" />
-            <ColumnDirective key="sf-col-ttl" field="ttlCltvtnArea" headerText="총재배면적" format="N1" />
-            <ColumnDirective key="sf-col-sale" field="saleAmt" headerText="판매금액" format="N0" />
-            <ColumnDirective key="sf-col-addr" field="plcAddr" headerText="주소" />
+            <ColumnDirective key="sf-col-item" field="item" headerText={BAT_COL.cyc_condition_age_type} width="120" />
+            <ColumnDirective key="sf-col-cty" field="cty" headerText={`cty(${BAT_COL.soc_est_end})`} width="100" />
+            <ColumnDirective key="sf-col-ttl" field="ttlCltvtnArea" headerText={BAT_COL.delta_q_Ah} format="N1" />
+            <ColumnDirective key="sf-col-sale" field="saleAmt" headerText={BAT_COL.saleAmt_primary} format="N0" />
+            <ColumnDirective key="sf-col-addr" field="plcAddr" headerText={BAT_COL.sd_block_id} />
           </ColumnsDirective>
           <Inject services={[Page, Sort, Toolbar, Search]} />
         </GridComponent>
@@ -199,7 +200,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         </SankeyComponent>
       </ToolSection>
 
-      <ToolSection title="스파크라인 — 누적면적 미니 추세">
+      <ToolSection title={`스파크라인 — 누적 ${BAT_COL.delta_q_Ah} 미니 추세`}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end' }}>
           {sparkTail.length >= 2
             ? (['Line', 'Area', 'Column'] as const).map((t) => (
@@ -230,22 +231,22 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         </div>
       </ToolSection>
 
-      <ToolSection title="막대 — 작목별 평균 총재배면적">
+      <ToolSection title={`막대 — ${BAT_COL.cyc_condition_age_type}별 평균 ${BAT_COL.delta_q_Ah}`}>
         <ChartComponent
           key={`sf-chart-bar-${rows.length}-${bar.length}`}
-          title="평균 총재배면적"
+          title={`평균 ${BAT_COL.delta_q_Ah}`}
           palettes={VIVID_PALETTE}
           primaryXAxis={{ valueType: 'Category', labelRotation: 32 }}
           height={CHART_H}
         >
           <Inject services={[ColumnSeries, Legend, Tooltip, DataLabel, Category]} />
           <SeriesCollectionDirective>
-            <SeriesDirective key="sf-ser-bar-avg" dataSource={bar} xName="item" yName="avgTtl" type="Column" name="평균" />
+            <SeriesDirective key="sf-ser-bar-avg" dataSource={bar} xName="item" yName="avgTtl" type="Column" name={`평균 ${BAT_COL.delta_q_Ah}`} />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="라인 — 누적 총재배면적(드래그 줌)">
+      <ToolSection title={`라인 — 누적 ${BAT_COL.delta_q_Ah}(드래그 줌)`}>
         <ChartComponent
           key={`sf-chart-line-${rows.length}-${line.length}`}
           palettes={VIVID_PALETTE}
@@ -255,7 +256,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         >
           <Inject services={[LineSeries, Legend, Tooltip, Category, Zoom]} />
           <SeriesCollectionDirective>
-            <SeriesDirective key="sf-ser-line-cum" dataSource={line} xName="seq" yName="cumTtl" type="Line" name="누적" width={2} />
+            <SeriesDirective key="sf-ser-line-cum" dataSource={line} xName="seq" yName="cumTtl" type="Line" name={`누적 ${BAT_COL.delta_q_Ah}`} width={2} />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>
@@ -269,12 +270,12 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         >
           <Inject services={[SplineSeries, Legend, Tooltip, Category]} />
           <SeriesCollectionDirective>
-            <SeriesDirective key="sf-ser-spline-cum" dataSource={line} xName="seq" yName="cumTtl" type="Spline" name="누적" />
+            <SeriesDirective key="sf-ser-spline-cum" dataSource={line} xName="seq" yName="cumTtl" type="Spline" name={`누적 ${BAT_COL.delta_q_Ah}`} />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="스텝 라인 — 누적">
+      <ToolSection title={`스텝 라인 — 누적 ${BAT_COL.delta_q_Ah}`}>
         <ChartComponent
           key={`sf-chart-stepline-${rows.length}-${line.length}`}
           palettes={VIVID_PALETTE}
@@ -283,12 +284,12 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         >
           <Inject services={[StepLineSeries, Legend, Tooltip, Category]} />
           <SeriesCollectionDirective>
-            <SeriesDirective key="sf-ser-stepline-cum" dataSource={line} xName="seq" yName="cumTtl" type="StepLine" name="누적" />
+            <SeriesDirective key="sf-ser-stepline-cum" dataSource={line} xName="seq" yName="cumTtl" type="StepLine" name={`누적 ${BAT_COL.delta_q_Ah}`} />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="영역 — 행 seq vs 총재배면적(샘플)">
+      <ToolSection title={`영역 — ${BAT_COL.seq} vs ${BAT_COL.delta_q_Ah}(샘플)`}>
         <ChartComponent
           key={`sf-chart-area-ttl-${rows.length}`}
           palettes={VIVID_PALETTE}
@@ -306,14 +307,14 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
               xName="sx"
               yName="ttl"
               type="Area"
-              name="총재배면적"
+              name={BAT_COL.delta_q_Ah}
               opacity={0.35}
             />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="레이더 — 지표별 평균(다축 비교)">
+      <ToolSection title="레이더 — 측정 컬럼별 평균(다축 비교)">
         <ChartComponent
           key={`sf-chart-radar-${rows.length}`}
           palettes={VIVID_PALETTE}
@@ -328,12 +329,12 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="버블 — 면적 × 조사대지, 크기=판매금액">
+      <ToolSection title={`버블 — ${BAT_COL.delta_q_Ah} × ${BAT_COL.cyc_duration_s}, 크기=${BAT_COL.saleAmt_primary}`}>
         <ChartComponent
           key={`sf-chart-bubble-${rows.length}-${bubbles.length}`}
           palettes={VIVID_PALETTE}
-          primaryXAxis={{ title: '총재배면적', minimum: 0 }}
-          primaryYAxis={{ title: '조사대지(평)', minimum: 0 }}
+          primaryXAxis={{ title: BAT_COL.delta_q_Ah, minimum: 0 }}
+          primaryYAxis={{ title: BAT_COL.cyc_duration_s, minimum: 0 }}
           height={CHART_H}
         >
           <Inject services={[BubbleSeries, Legend, Tooltip]} />
@@ -345,7 +346,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
               yName="by"
               size="bsize"
               type="Bubble"
-              name="조사지"
+              name={`${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`}
               minRadius={2}
               maxRadius={10}
             />
@@ -353,22 +354,29 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="산점 — 면적 × 조사대지(동일 데이터, 점만)">
+      <ToolSection title={`산점 — ${BAT_COL.delta_q_Ah} × ${BAT_COL.cyc_duration_s}(동일 데이터, 점만)`}>
         <ChartComponent
           key={`sf-chart-scatter-${rows.length}-${scat.length}`}
           palettes={VIVID_PALETTE}
-          primaryXAxis={{ title: '총재배면적' }}
-          primaryYAxis={{ title: '조사대지(평)' }}
+          primaryXAxis={{ title: BAT_COL.delta_q_Ah }}
+          primaryYAxis={{ title: BAT_COL.cyc_duration_s }}
           height={CHART_H_SM}
         >
           <Inject services={[ScatterSeries, Legend, Tooltip]} />
           <SeriesCollectionDirective>
-            <SeriesDirective key="sf-ser-scatter" dataSource={scat} xName="x" yName="y" type="Scatter" name="조사지" />
+            <SeriesDirective
+              key="sf-ser-scatter"
+              dataSource={scat}
+              xName="x"
+              yName="y"
+              type="Scatter"
+              name={`${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`}
+            />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="히스토그램 — 총재배면적 구간">
+      <ToolSection title={`히스토그램 — ${BAT_COL.delta_q_Ah} 구간`}>
         <ChartComponent
           key={`sf-chart-hist-${rows.length}`}
           palettes={VIVID_PALETTE}
@@ -382,7 +390,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="그룹 막대 — 시군별 건수·평균면적">
+      <ToolSection title={`그룹 막대 — cty별 건수·평균 ${BAT_COL.delta_q_Ah}`}>
         <ChartComponent
           key={`sf-chart-cty-group-${rows.length}`}
           palettes={VIVID_PALETTE}
@@ -392,12 +400,12 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
           <Inject services={[ColumnSeries, Legend, Tooltip, Category]} />
           <SeriesCollectionDirective>
             <SeriesDirective key="sf-ser-cty-cnt" dataSource={cty} xName="cty" yName="cnt" name="건수" type="Column" />
-            <SeriesDirective key="sf-ser-cty-avgttl" dataSource={cty} xName="cty" yName="avgTtl" name="평균 총재배면적" type="Column" />
+            <SeriesDirective key="sf-ser-cty-avgttl" dataSource={cty} xName="cty" yName="avgTtl" name={`평균 ${BAT_COL.delta_q_Ah}`} type="Column" />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="파이 / 퍼널 / 피라미드 — 작목 건수">
+      <ToolSection title={`파이 / 퍼널 / 피라미드 — ${BAT_COL.cyc_condition_age_type} 건수`}>
         <div
           style={{
             display: 'grid',
@@ -458,7 +466,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="가로 막대 — 지표 평균(막대 요약)">
+      <ToolSection title="가로 막대 — 측정 컬럼 평균(막대 요약)">
         <ChartComponent key={`sf-chart-radar-bar-${rows.length}`} palettes={VIVID_PALETTE} isTransposed height={CHART_H_SM}>
           <Inject services={[BarSeries, Legend, Tooltip, Category]} />
           <SeriesCollectionDirective>
@@ -467,7 +475,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         </ChartComponent>
       </ToolSection>
 
-      <ToolSection title="막대 — 작목별 면적 합(트리맵 대용)">
+      <ToolSection title={`막대 — ${BAT_COL.cyc_condition_age_type}별 ${BAT_COL.delta_q_Ah} 합(트리맵 대용)`}>
         <ChartComponent
           key={`sf-chart-tree-${rows.length}-${tree.length}`}
           palettes={VIVID_PALETTE}
@@ -476,7 +484,7 @@ export default function SyncfusionJejuTab({ rows, loadError, loading }: ToolRows
         >
           <Inject services={[ColumnSeries, Legend, Tooltip, Category]} />
           <SeriesCollectionDirective>
-            <SeriesDirective key="sf-ser-tree-sum" dataSource={tree} xName="name" yName="value" type="Column" name="면적합" />
+            <SeriesDirective key="sf-ser-tree-sum" dataSource={tree} xName="name" yName="value" type="Column" name={`${BAT_COL.delta_q_Ah} 합`} />
           </SeriesCollectionDirective>
         </ChartComponent>
       </ToolSection>

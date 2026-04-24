@@ -68,6 +68,7 @@ import TabPanel, { Item } from 'devextreme-react/tab-panel'
 import TileView from 'devextreme-react/tile-view'
 import Toolbar, { Item as ToolbarItem } from 'devextreme-react/toolbar'
 import TreeMap from 'devextreme-react/tree-map'
+import { BAT_COL } from './jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -156,7 +157,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
   const ctyOptions = useMemo((): CtyOpt[] => {
     const set = new Set(rows.map((r) => r.cty?.trim()).filter(Boolean) as string[])
     const sorted = [...set].sort()
-    return [{ value: null, name: '전체 시군' }, ...sorted.map((c) => ({ value: c, name: c }))]
+    return [{ value: null, name: `전체 (${BAT_COL.soc_est_end} 구간)` }, ...sorted.map((c) => ({ value: c, name: c }))]
   }, [rows])
 
   const last = viewRows[viewRows.length - 1]
@@ -171,8 +172,8 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
     () =>
       new PivotGridDataSource({
         fields: [
-          { dataField: 'srvyLabel', area: 'row', caption: '조사 ID(일부)' },
-          { dataField: 'measure', area: 'column', caption: '지표' },
+          { dataField: 'srvyLabel', area: 'row', caption: `${BAT_COL.timestamp_s}(일부)` },
+          { dataField: 'measure', area: 'column', caption: '측정 컬럼' },
           { dataField: 'value', area: 'data', summaryType: 'sum', caption: '값' },
         ],
         store: pivotLongFromJeju(viewRows),
@@ -230,7 +231,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
     <div className="dash-chart-tab-scroll-shell">
       <TabScroll>
       <div className="viz-filter-bar">
-        <span className="viz-filter-label">SOC 구간(cty) 필터</span>
+        <span className="viz-filter-label">{`${BAT_COL.soc_est_end} 구간(cty) 필터`}</span>
         <SelectBox
           width={220}
           displayExpr="name"
@@ -239,7 +240,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           value={ctyFilter}
           searchEnabled
           showClearButton
-          placeholder="시군 선택"
+          placeholder={`${BAT_COL.soc_est_end} 구간 선택`}
           onValueChanged={(e) => setCtyFilter(e.value as string | null)}
         />
         <span className="viz-filter-meta">
@@ -248,10 +249,10 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
       </div>
 
       <div className="viz-grid">
-        <Card title="RangeSelector + 미니차트 (총재배면적 구간)">
+        <Card title={`RangeSelector + 미니차트 (${BAT_COL.delta_q_Ah} 구간)`}>
           <RangeSelector
             dataSource={splineDs}
-            title={{ text: '행 구간을 드래그해 탐색 (총재배면적)' }}
+            title={{ text: `행 구간을 드래그해 탐색 (${BAT_COL.delta_q_Ah})` }}
             defaultValue={rsDefault}
           >
             <RsSize height={DX_RANGE_SELECTOR} />
@@ -263,7 +264,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           </RangeSelector>
         </Card>
 
-        <Card title="행 순서 — 총재배면적 (Spline · 줌/팬 · 크로스헤어)">
+        <Card title={`행 순서 — ${BAT_COL.delta_q_Ah} (Spline · 줌/팬 · 크로스헤어)`}>
           <Chart
             dataSource={splineDs}
             style={chartHeight(DX_CHART)}
@@ -275,42 +276,49 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
               <HorizontalLine visible={false} />
               <VerticalLine visible />
             </Crosshair>
-            <ArgumentAxis title={{ text: '행 순서(샘플)' }} />
-            <ValueAxis title={{ text: '총재배면적' }} />
-            <Series argumentField="seq" valueField="ttlCltvtnArea" type="spline" name="총재배면적" />
+            <ArgumentAxis title={{ text: `${BAT_COL.seq}(행 순서)` }} />
+            <ValueAxis title={{ text: BAT_COL.delta_q_Ah }} />
+            <Series argumentField="seq" valueField="ttlCltvtnArea" type="spline" name={BAT_COL.delta_q_Ah} />
             <ChartLegend visible />
             <ChartTooltip enabled shared />
             <ChartExport enabled />
           </Chart>
         </Card>
 
-        <Card title="버블 — 면적 × 조사대지 × 판매금액(크기)">
+        <Card
+          title={`버블 — ${BAT_COL.delta_q_Ah} × ${BAT_COL.cyc_duration_s} × ${BAT_COL.saleAmt_primary}(크기)`}
+        >
           <Chart dataSource={bubblePlotRows(viewRows)} style={chartHeight(DX_CHART)} palette="Pastel">
-            <ArgumentAxis title={{ text: '총재배면적' }} />
-            <ValueAxis title={{ text: '조사대지면적(평)' }} />
+            <ArgumentAxis title={{ text: BAT_COL.delta_q_Ah }} />
+            <ValueAxis title={{ text: BAT_COL.cyc_duration_s }} />
             <Series
               argumentField="bx"
               valueField="by"
               sizeField="bsize"
               type="bubble"
-              name="농가·작목"
+              name={`${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`}
             />
-            <ChartTooltip enabled customizeTooltip={(e) => ({ text: `면적 ${e.point?.data?.bx}, 대지 ${e.point?.data?.by}` })} />
+            <ChartTooltip
+              enabled
+              customizeTooltip={(e) => ({
+                text: `${BAT_COL.delta_q_Ah} ${e.point?.data?.bx}, ${BAT_COL.cyc_duration_s} ${e.point?.data?.by}`,
+              })}
+            />
             <ChartExport enabled />
           </Chart>
         </Card>
 
-        <Card title="Step — 누적 총재배면적">
+        <Card title={`Step — 누적 ${BAT_COL.delta_q_Ah}`}>
           <Chart dataSource={cumulativeTtlSeries(viewRows)} style={chartHeight(DX_CHART)} palette="Soft">
-            <ArgumentAxis title={{ text: '행 순서' }} />
-            <ValueAxis title={{ text: '누적 면적' }} />
-            <Series argumentField="seq" valueField="cumTtl" type="stepline" name="누적" color="#0d9488" />
+            <ArgumentAxis title={{ text: BAT_COL.seq }} />
+            <ValueAxis title={{ text: `누적 ${BAT_COL.delta_q_Ah}` }} />
+            <Series argumentField="seq" valueField="cumTtl" type="stepline" name={`누적 ${BAT_COL.delta_q_Ah}`} color="#0d9488" />
             <ChartTooltip enabled />
             <ChartExport enabled />
           </Chart>
         </Card>
 
-        <Card title="히스토그램 — 총재배면적 구간별 건수">
+        <Card title={`히스토그램 — ${BAT_COL.delta_q_Ah} 구간별 건수`}>
           <Chart dataSource={ttlHistogramBins(viewRows, 14)} style={chartHeight(DX_CHART)} palette="Bright">
             <ArgumentAxis />
             <ValueAxis title={{ text: '건수' }} />
@@ -320,20 +328,20 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           </Chart>
         </Card>
 
-        <Card title="SOC 구간(cty) — 건수·평균(총전량 대응)">
+        <Card title={`${BAT_COL.soc_est_end} 구간(cty) — 건수·평균(${BAT_COL.delta_q_Ah})`}>
           <Chart dataSource={aggregateCtyAvgTtl(viewRows, 12)} style={chartHeight(DX_CHART)} palette="Ocean">
-            <ArgumentAxis title={{ text: 'SOC 구간(cty)' }} />
+            <ArgumentAxis title={{ text: `cty(${BAT_COL.soc_est_end} 구간)` }} />
             <ValueAxis title={{ text: '값' }} />
             <CommonSeriesSettings argumentField="cty" type="bar" />
             <Series valueField="cnt" name="건수" />
-            <Series valueField="avgTtl" name="평균(총전량 축)" />
+            <Series valueField="avgTtl" name={`평균 ${BAT_COL.delta_q_Ah}`} />
             <ChartLegend horizontalAlignment="center" verticalAlignment="bottom" />
             <ChartTooltip enabled shared />
             <ChartExport enabled />
           </Chart>
         </Card>
 
-        <Card title="TileView — 상위 작목(면적합 기준)">
+        <Card title={`TileView — 상위 ${BAT_COL.cyc_condition_age_type}(${BAT_COL.delta_q_Ah} 합 기준)`}>
           <TileView
             items={tileViewTopCrops(viewRows, 18)}
             height={DX_TILEVIEW}
@@ -343,7 +351,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           />
         </Card>
 
-        <Card title="스택 영역 — 면적·고도·조사대지(행 순서)">
+        <Card title={`스택 영역 — ${BAT_COL.delta_q_Ah}·${BAT_COL.t_end_degC}·${BAT_COL.cyc_duration_s}(${BAT_COL.seq})`}>
           <Chart
             dataSource={stackedDs}
             style={chartHeight(DX_CHART)}
@@ -353,31 +361,31 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             <ArgumentAxis />
             <ValueAxis title={{ text: '값' }} />
             <CommonSeriesSettings argumentField="seq" type="stackedarea" />
-            <Series valueField="ttlCltvtnArea" name="총재배면적" />
-            <Series valueField="alt" name="고도" />
-            <Series valueField="exmnTrgtPlcAreaPy" name="조사대지면적(평)" />
+            <Series valueField="ttlCltvtnArea" name={BAT_COL.delta_q_Ah} />
+            <Series valueField="alt" name={BAT_COL.t_end_degC} />
+            <Series valueField="exmnTrgtPlcAreaPy" name={BAT_COL.cyc_duration_s} />
             <ChartLegend horizontalAlignment="center" verticalAlignment="bottom" />
             <ChartTooltip enabled shared />
             <ChartExport enabled />
           </Chart>
         </Card>
 
-        <Card title="총재배면적 vs 조사대지면적 (Scatter)">
+        <Card title={`${BAT_COL.delta_q_Ah} vs ${BAT_COL.cyc_duration_s} (Scatter)`}>
           <Chart dataSource={scatterRows(viewRows)} style={chartHeight(DX_CHART)} palette="Soft">
-            <ArgumentAxis title={{ text: '총재배면적' }} />
-            <ValueAxis title={{ text: '조사대지면적(평)' }} />
+            <ArgumentAxis title={{ text: BAT_COL.delta_q_Ah }} />
+            <ValueAxis title={{ text: BAT_COL.cyc_duration_s }} />
             <Series
               argumentField="ttlCltvtnArea"
               valueField="exmnTrgtPlcAreaPy"
               type="scatter"
-              name="조사지"
+              name={`${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`}
             />
             <ChartTooltip enabled />
             <ChartExport enabled />
           </Chart>
         </Card>
 
-        <Card title="막대 — 작목별 총재배면적 평균 (상위 20)">
+        <Card title={`막대 — ${BAT_COL.cyc_condition_age_type}별 평균 ${BAT_COL.delta_q_Ah} (상위 20)`}>
           <Chart
             dataSource={aggregateAvgTtlByItem(viewRows)}
             style={chartHeight(DX_CHART)}
@@ -385,14 +393,14 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
             palette="Ocean"
           >
             <ArgumentAxis />
-            <ValueAxis title={{ text: '평균 총재배면적' }} />
-            <Series argumentField="item" valueField="avgTtl" type="bar" name="평균" />
+            <ValueAxis title={{ text: `평균 ${BAT_COL.delta_q_Ah}` }} />
+            <Series argumentField="item" valueField="avgTtl" type="bar" name={`평균 ${BAT_COL.delta_q_Ah}`} />
             <ChartTooltip enabled />
             <ChartExport enabled />
           </Chart>
         </Card>
 
-        <Card title="작목 분포 (도넛 Pie, 상위 10 + 기타)">
+        <Card title={`${BAT_COL.cyc_condition_age_type} 분포 (도넛 Pie, 상위 10 + 기타)`}>
           <PieChart
             dataSource={pieItemTopN(viewRows, 10)}
             style={chartHeight(DX_CHART)}
@@ -428,7 +436,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           />
         </Card>
 
-        <Card title="작목별 총재배면적 합 (TreeMap)">
+        <Card title={`${BAT_COL.cyc_condition_age_type}별 ${BAT_COL.delta_q_Ah} 합 (TreeMap)`}>
           <TreeMap
             dataSource={treemapItemSumTtl(viewRows)}
             valueField="value"
@@ -439,7 +447,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           />
         </Card>
 
-        <Card title="지표 평균 레이더 (Polar)">
+        <Card title="측정 컬럼 평균 레이더 (Polar)">
           <PolarChart dataSource={metricAveragesJeju(viewRows)} style={chartHeight(DX_CHART)} palette="Soft">
             <PolarCommon type="line" />
             <PolarSeries argumentField="metric" valueField="avg" name="표본 평균" />
@@ -448,13 +456,13 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           </PolarChart>
         </Card>
 
-        <Card title="마지막 행 기준 — 총재배면적 게이지">
+        <Card title={`마지막 행 기준 — ${BAT_COL.delta_q_Ah} 게이지`}>
           <div className="gauge-row">
             <div className="gauge-cell">
               <CircularGauge
                 value={lastTtl}
                 style={{ height: DX_GAUGE_CIRCULAR }}
-                title={{ text: '총재배면적' }}
+                title={{ text: BAT_COL.delta_q_Ah }}
               >
                 <CgScale
                   startValue={Math.max(0, ttlMin - (ttlMax - ttlMin) * 0.1)}
@@ -473,7 +481,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
                 value={normTtl}
                 style={{ height: DX_GAUGE_LINEAR }}
                 subvalues={[33, 66]}
-                title={{ text: '총재배면적 상대위치(0~100)' }}
+                title={{ text: `${BAT_COL.delta_q_Ah} 상대위치(0~100)` }}
               >
                 <LgScale startValue={0} endValue={100} tickInterval={25}>
                   <LgRangeContainer>
@@ -499,14 +507,20 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
                 items.map((item, i) => ({
                   ...item,
                   text:
-                    ['총재배면적', '고도', '조사대지면적', '파종량', '판매금액'][i] ?? item.text,
+                    [
+                      BAT_COL.delta_q_Ah,
+                      BAT_COL.t_end_degC,
+                      BAT_COL.cyc_duration_s,
+                      BAT_COL.soh_cap_soc_est_start,
+                      BAT_COL.saleAmt_primary,
+                    ][i] ?? item.text,
                 }))
               }
             />
           </BarGauge>
         </Card>
 
-        <Card title="판매금액 vs 표본 중앙값 (Bullet)">
+        <Card title={`${BAT_COL.saleAmt_primary} vs 표본 중앙값 (Bullet)`}>
           <Bullet
             value={lastSale}
             startScaleValue={0}
@@ -517,7 +531,7 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
           />
         </Card>
 
-        <Card title="총재배면적 스파크라인 (앞 200행)">
+        <Card title={`${BAT_COL.delta_q_Ah} 스파크라인 (앞 200행)`}>
           <Sparkline
             dataSource={sparkTtl}
             argumentField="t"
@@ -555,25 +569,25 @@ export default function ManufacturingDashboard({ rows, loadError }: Manufacturin
         <Paging defaultPageSize={15} />
         <Pager visible showPageSizeSelector showInfo />
         <GridExport enabled allowExportSelectedData />
-        <Column dataField="srvyId" caption="srvy_id" width={120} />
-        <Column dataField="listId" caption="list_id" width={100} />
-        <Column dataField="item" caption="작목(item)" minWidth={100} />
-        <Column dataField="cty" caption="시군구(cty)" width={90} />
-        <Column dataField="eupmyeon" caption="읍면" width={90} />
-        <Column dataField="mngmSttsNm" caption="경영상태" minWidth={120} />
-        <Column dataField="plcAddr" caption="주소" minWidth={180} />
-        <Column dataField="ttlCltvtnArea" caption="총재배면적" dataType="number" format=",##0.##" />
-        <Column dataField="alt" caption="고도" dataType="number" format=",##0.##" />
-        <Column dataField="exmnTrgtPlcAreaPy" caption="조사대지면적(평)" dataType="number" format=",##0.##" />
-        <Column dataField="sdQty" caption="파종량" dataType="number" format=",##0.##" />
-        <Column dataField="salePrdcQty" caption="판매생산량" dataType="number" format=",##0.##" />
-        <Column dataField="saleAmt" caption="판매금액" dataType="number" format=",##0" />
+        <Column dataField="srvyId" caption={BAT_COL.timestamp_s} width={120} />
+        <Column dataField="listId" caption={BAT_COL.cyc_condition_cyc_charged} width={100} />
+        <Column dataField="item" caption={BAT_COL.cyc_condition_age_type} minWidth={100} />
+        <Column dataField="cty" caption={`cty(${BAT_COL.soc_est_end} 구간)`} width={90} />
+        <Column dataField="eupmyeon" caption={BAT_COL.age_profile} width={90} />
+        <Column dataField="mngmSttsNm" caption={BAT_COL.cyc_charged} minWidth={120} />
+        <Column dataField="plcAddr" caption={BAT_COL.sd_block_id} minWidth={180} />
+        <Column dataField="ttlCltvtnArea" caption={BAT_COL.delta_q_Ah} dataType="number" format=",##0.##" />
+        <Column dataField="alt" caption={BAT_COL.t_end_degC} dataType="number" format=",##0.##" />
+        <Column dataField="exmnTrgtPlcAreaPy" caption={BAT_COL.cyc_duration_s} dataType="number" format=",##0.##" />
+        <Column dataField="sdQty" caption={BAT_COL.soh_cap_soc_est_start} dataType="number" format=",##0.##" />
+        <Column dataField="salePrdcQty" caption={BAT_COL.salePrdcQty_primary} dataType="number" format=",##0.##" />
+        <Column dataField="saleAmt" caption={BAT_COL.saleAmt_primary} dataType="number" format=",##0" />
         <Summary>
           <TotalItem
             column="ttlCltvtnArea"
             summaryType="avg"
             valueFormat=",##0.0"
-            displayFormat="총재배면적 평균: {0}"
+            displayFormat={`${BAT_COL.delta_q_Ah} 평균: {0}`}
           />
           <TotalItem column="id" summaryType="count" displayFormat="행 수: {0}" />
         </Summary>

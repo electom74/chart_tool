@@ -26,6 +26,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -57,7 +58,7 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
   return (
     <JejuDataGate {...props}>
     <TabScroll>
-      <ToolSection title="막대 — 작목별 평균">
+      <ToolSection title={`막대 — ${BAT_COL.cyc_condition_age_type}별 평균 ${BAT_COL.delta_q_Ah}`}>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
             <BarChart data={bar} margin={{ top: 8, right: 8, left: 8, bottom: 44 }}>
@@ -66,12 +67,12 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="avgTtl" name="평균 총재배면적" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="avgTtl" name={`평균 ${BAT_COL.delta_q_Ah}`} fill="#6366f1" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </ToolSection>
-      <ToolSection title="영역 — 누적">
+      <ToolSection title={`영역 — 누적 ${BAT_COL.delta_q_Ah}`}>
         <div style={{ width: '100%', height: 260 }}>
           <ResponsiveContainer>
             <AreaChart data={cum} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
@@ -79,12 +80,12 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
               <XAxis dataKey="seq" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="cumTtl" name="누적" stroke="#0d9488" fill="#99f6e4" />
+              <Area type="monotone" dataKey="cumTtl" name={`누적 ${BAT_COL.delta_q_Ah}`} stroke="#0d9488" fill="#99f6e4" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </ToolSection>
-      <ToolSection title="라인+막대 — 시군(Composed)">
+      <ToolSection title={`라인+막대 — cty(${BAT_COL.soc_est_end} 구간, Composed)`}>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
             <ComposedChart data={cty} margin={{ top: 8, right: 8, left: 8, bottom: 28 }}>
@@ -95,25 +96,25 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
               <Tooltip />
               <Legend />
               <Bar yAxisId="left" dataKey="cnt" name="건수" fill="#6366f1" />
-              <Line yAxisId="right" type="monotone" dataKey="avgTtl" name="평균면적" stroke="#f97316" dot />
+              <Line yAxisId="right" type="monotone" dataKey="avgTtl" name={`평균 ${BAT_COL.delta_q_Ah}`} stroke="#f97316" dot />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
       </ToolSection>
-      <ToolSection title="산점 — 면적·대지">
+      <ToolSection title={`산점 — ${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`}>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
             <ScatterChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
               <CartesianGrid />
-              <XAxis type="number" dataKey="bx" name="총재배면적" />
-              <YAxis type="number" dataKey="by" name="조사대지(평)" />
+              <XAxis type="number" dataKey="bx" name={BAT_COL.delta_q_Ah} />
+              <YAxis type="number" dataKey="by" name={BAT_COL.cyc_duration_s} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-              <Scatter name="조사지" data={bub} fill="#0d9488" />
+              <Scatter name={`${BAT_COL.delta_q_Ah}·${BAT_COL.cyc_duration_s}`} data={bub} fill="#0d9488" />
             </ScatterChart>
           </ResponsiveContainer>
         </div>
       </ToolSection>
-      <ToolSection title="파이 — 작목 건수">
+      <ToolSection title={`파이 — ${BAT_COL.cyc_condition_age_type} 건수`}>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
             <PieChart>
@@ -141,7 +142,7 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
           </ResponsiveContainer>
         </div>
       </ToolSection>
-      <ToolSection title="레이더 — 지표 평균">
+      <ToolSection title="레이더 — 측정 컬럼 평균">
         <div style={{ width: '100%', height: 320 }}>
           <ResponsiveContainer>
             <RadarChart data={radar} cx="50%" cy="50%" outerRadius="70%">
@@ -172,7 +173,7 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
           </ResponsiveContainer>
         </div>
       </ToolSection>
-      <ToolSection title="Treemap — 작목 면적 합">
+      <ToolSection title={`Treemap — ${BAT_COL.cyc_condition_age_type}·${BAT_COL.delta_q_Ah} 합`}>
         <div style={{ width: '100%', height: 320 }}>
           <ResponsiveContainer>
             <Treemap
@@ -187,7 +188,7 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
           </ResponsiveContainer>
         </div>
       </ToolSection>
-      <ToolSection title="라인 — 행 vs 총재배면적">
+      <ToolSection title={`라인 — ${BAT_COL.seq} vs ${BAT_COL.delta_q_Ah}`}>
         <div style={{ width: '100%', height: 260 }}>
           <ResponsiveContainer>
             <LineChart
@@ -200,7 +201,7 @@ export default function RechartsJejuTab(props: ToolRowsProps) {
               <XAxis dataKey="seq" />
               <YAxis />
               <Tooltip />
-              <Line type="monotone" dataKey="ttlCltvtnArea" name="총재배면적" stroke="#7c3aed" dot={false} strokeWidth={2} />
+              <Line type="monotone" dataKey="ttlCltvtnArea" name={BAT_COL.delta_q_Ah} stroke="#7c3aed" dot={false} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </div>

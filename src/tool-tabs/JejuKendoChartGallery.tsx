@@ -15,6 +15,7 @@ import {
   ChartYAxis,
   ChartYAxisItem,
 } from '@progress/kendo-react-charts'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   bubblePlotRows,
@@ -89,7 +90,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
 
   return (
     <div className="kendo-gallery-grid">
-      <MiniKendoChart title="1. Column — 작목 평균 재배면적" height={h}>
+      <MiniKendoChart title={`1. Column — ${BAT_COL.cyc_condition_age_type} 평균 ${BAT_COL.delta_q_Ah}`} height={h}>
         <ChartCategoryAxis>
           <ChartCategoryAxisItem labels={{ rotation: -35 }} />
         </ChartCategoryAxis>
@@ -101,7 +102,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="2. Line — 누적 총재배면적(샘플링)" height={h}>
+      <MiniKendoChart title={`2. Line — 누적 ${BAT_COL.delta_q_Ah}(샘플링)`} height={h}>
         <ChartCategoryAxis>
           <ChartCategoryAxisItem labels={{ rotation: 'auto', step: 2 }} />
         </ChartCategoryAxis>
@@ -120,7 +121,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="3. Area — 누적면적(영역)" height={h}>
+      <MiniKendoChart title={`3. Area — 누적 ${BAT_COL.delta_q_Ah}(영역)`} height={h}>
         <ChartCategoryAxis>
           <ChartCategoryAxisItem labels={{ rotation: 'auto', step: 2 }} />
         </ChartCategoryAxis>
@@ -139,7 +140,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="4. Donut — 작목 건수 비중" height={h}>
+      <MiniKendoChart title={`4. Donut — ${BAT_COL.cyc_condition_age_type} 건수 비중`} height={h}>
         <ChartSeries>
           <ChartSeriesItem
             type="donut"
@@ -151,7 +152,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="5. Funnel — 작목 건수(상위→하위)" height={h}>
+      <MiniKendoChart title={`5. Funnel — ${BAT_COL.cyc_condition_age_type} 건수(상위→하위)`} height={h}>
         <ChartSeries>
           <ChartSeriesItem
             type="funnel"
@@ -164,12 +165,12 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="6. Bubble — 면적×조사대지(크기=판매금액)" height={h}>
+      <MiniKendoChart title={`6. Bubble — ${BAT_COL.delta_q_Ah}×${BAT_COL.cyc_duration_s}(크기=${BAT_COL.saleAmt_primary})`} height={h}>
         <ChartXAxis>
-          <ChartXAxisItem title={{ text: '총재배면적' }} majorGridLines={{ visible: true }} />
+          <ChartXAxisItem title={{ text: BAT_COL.delta_q_Ah }} majorGridLines={{ visible: true }} />
         </ChartXAxis>
         <ChartYAxis>
-          <ChartYAxisItem title={{ text: '조사대지(평)' }} majorGridLines={{ visible: true }} />
+          <ChartYAxisItem title={{ text: BAT_COL.cyc_duration_s }} majorGridLines={{ visible: true }} />
         </ChartYAxis>
         <ChartSeries>
           <ChartSeriesItem
@@ -190,7 +191,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="7. Radar area — 지표 평균 프로필" height={h}>
+      <MiniKendoChart title="7. Radar area — 측정 컬럼 평균 프로필" height={h}>
         <ChartCategoryAxis>
           <ChartCategoryAxisItem />
         </ChartCategoryAxis>
@@ -221,7 +222,7 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="9. Range column — 면적 히스토그램(0→건수)" height={h}>
+      <MiniKendoChart title={`9. Range column — ${BAT_COL.delta_q_Ah} 히스토그램(0→건수)`} height={h}>
         <ChartCategoryAxis>
           <ChartCategoryAxisItem labels={{ rotation: -30 }} />
         </ChartCategoryAxis>
@@ -240,12 +241,12 @@ export function JejuKendoChartGallery({ rows, chartHeight = defaultChartHeight }
         </ChartSeries>
       </MiniKendoChart>
 
-      <MiniKendoChart title="10. Scatter — 면적 vs 조사대지" height={h}>
+      <MiniKendoChart title={`10. Scatter — ${BAT_COL.delta_q_Ah} vs ${BAT_COL.cyc_duration_s}`} height={h}>
         <ChartXAxis>
-          <ChartXAxisItem title={{ text: '총재배면적' }} majorGridLines={{ visible: true }} />
+          <ChartXAxisItem title={{ text: BAT_COL.delta_q_Ah }} majorGridLines={{ visible: true }} />
         </ChartXAxis>
         <ChartYAxis>
-          <ChartYAxisItem title={{ text: '조사대지(평)' }} majorGridLines={{ visible: true }} />
+          <ChartYAxisItem title={{ text: BAT_COL.cyc_duration_s }} majorGridLines={{ visible: true }} />
         </ChartYAxis>
         <ChartSeries>
           <ChartSeriesItem

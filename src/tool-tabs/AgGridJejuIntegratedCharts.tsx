@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import type { ChartType, ColDef, GridReadyEvent } from 'ag-grid-community'
 import { AgGridReact } from 'ag-grid-react'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import { aggregateCtyAvgTtl, type JejuFieldCropSlim } from '../jeju/jejuFieldCropModel'
 import { ToolSection } from './shared'
 
@@ -92,9 +93,9 @@ export function AgGridJejuIntegratedCharts({ rows }: { rows: JejuFieldCropSlim[]
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
-      { field: 'category', headerName: '시군', chartDataType: 'category', flex: 1 },
+      { field: 'category', headerName: `cty(${BAT_COL.soc_est_end})`, chartDataType: 'category', flex: 1 },
       { field: 'v1', headerName: '건수', chartDataType: 'series', width: 90 },
-      { field: 'v2', headerName: '평균면적', chartDataType: 'series', width: 100 },
+      { field: 'v2', headerName: `평균 ${BAT_COL.delta_q_Ah}`, chartDataType: 'series', width: 100 },
     ],
     [],
   )
@@ -103,8 +104,8 @@ export function AgGridJejuIntegratedCharts({ rows }: { rows: JejuFieldCropSlim[]
     <ToolSection title="AG Grid Enterprise — Integrated Charts(AG Charts, 10종)">
       <p className="gauge-note" style={{ marginTop: 0 }}>
         <code>AllEnterpriseModule.with(AgChartsCommunityModule)</code> 등록 후, 각 카드가 작은 그리드 범위에 대해{' '}
-        <code>api.createRangeChart</code>로 <strong>AG Grid 통합 차트</strong>를 생성합니다. 동일 시군 집계 데이터를
-        활용합니다.
+        <code>api.createRangeChart</code>로 <strong>AG Grid 통합 차트</strong>를 생성합니다.{' '}
+        {`동일 cty(${BAT_COL.soc_est_end} 구간) 집계 데이터를 활용합니다.`}
       </p>
       <div
         style={{

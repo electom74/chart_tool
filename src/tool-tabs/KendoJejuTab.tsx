@@ -10,6 +10,7 @@ import {
   ChartValueAxis,
   ChartValueAxisItem,
 } from '@progress/kendo-react-charts'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import { aggregateCtyAvgTtl, pieItemTopN, type JejuFieldCropSlim } from '../jeju/jejuFieldCropModel'
 import { JejuDataGate, ToolSection, type ToolRowsProps } from './shared'
 import { JejuKendoChartGallery } from './JejuKendoChartGallery'
@@ -34,7 +35,7 @@ function KendoExtraTwo({ rows }: { rows: JejuFieldCropSlim[] }) {
   const h = 400
   return (
     <div className="kendo-gallery-grid" style={{ marginTop: 10 }}>
-      <Mini title="11. Pie — 작목 건수" height={h}>
+      <Mini title={`11. Pie — ${BAT_COL.cyc_condition_age_type} 건수`} height={h}>
         <ChartSeries>
           <ChartSeriesItem
             type="pie"
@@ -44,7 +45,7 @@ function KendoExtraTwo({ rows }: { rows: JejuFieldCropSlim[] }) {
           />
         </ChartSeries>
       </Mini>
-      <Mini title="12. Stacked column — 시군 건수·평균면적(스택)" height={h}>
+      <Mini title={`12. Stacked column — cty·건수·평균 ${BAT_COL.delta_q_Ah}(스택)`} height={h}>
         <ChartCategoryAxis>
           <ChartCategoryAxisItem />
         </ChartCategoryAxis>
@@ -67,7 +68,7 @@ function KendoExtraTwo({ rows }: { rows: JejuFieldCropSlim[] }) {
             data={cty}
             field="avgTtl"
             categoryField="cty"
-            name="평균면적"
+            name={`평균 ${BAT_COL.delta_q_Ah}`}
             color="#14b8a6"
           />
         </ChartSeries>

@@ -2,6 +2,7 @@ import { registerAllModules } from 'handsontable/registry'
 import 'handsontable/styles/handsontable.min.css'
 import 'handsontable/styles/ht-theme-main.min.css'
 import HotTable from '@handsontable/react'
+import { BAT_COL } from '../jeju/batteryCsvColumnLabels'
 import {
   aggregateAvgTtlByItem,
   aggregateCtyAvgTtl,
@@ -33,7 +34,7 @@ export default function HandsontableJejuTab(props: ToolRowsProps) {
             themeName="main"
             licenseKey={hotLicenseKey}
             data={rows.slice(0, 80)}
-            colHeaders={['seq', '작목', '시군', '총재배면적', '판매금액', '주소']}
+            colHeaders={['seq', BAT_COL.cyc_condition_age_type, `cty(${BAT_COL.soc_est_end})`, BAT_COL.delta_q_Ah, BAT_COL.saleAmt_primary, BAT_COL.sd_block_id]}
             columns={[
               { data: 'seq', type: 'numeric', width: 64 },
               { data: 'item', width: 120 },
@@ -57,7 +58,7 @@ export default function HandsontableJejuTab(props: ToolRowsProps) {
             themeName="main"
             licenseKey={hotLicenseKey}
             data={cum.map((r) => [r.seq, r.cumTtl])}
-            colHeaders={['seq', '누적 면적']}
+            colHeaders={['seq', `누적 ${BAT_COL.delta_q_Ah}`]}
             columns={[
               { data: 0, type: 'numeric', readOnly: true },
               { data: 1, type: 'numeric', numericFormat: { pattern: '0,0.0' }, readOnly: true },
@@ -69,7 +70,7 @@ export default function HandsontableJejuTab(props: ToolRowsProps) {
         </div>
       </ToolSection>
 
-      <ToolSection title="Handsontable — 히스토그램(구간·건수)">
+      <ToolSection title={`Handsontable — 히스토그램(${BAT_COL.delta_q_Ah} 구간·건수)`}>
         <div className="hot ht-theme-main" style={{ width: '100%', minHeight: 260 }}>
           <HotTable
             themeName="main"
@@ -87,13 +88,13 @@ export default function HandsontableJejuTab(props: ToolRowsProps) {
         </div>
       </ToolSection>
 
-      <ToolSection title="Handsontable — 시군(건수·평균면적)">
+      <ToolSection title={`Handsontable — cty(건수·평균 ${BAT_COL.delta_q_Ah})`}>
         <div className="hot ht-theme-main" style={{ width: '100%', minHeight: 280 }}>
           <HotTable
             themeName="main"
             licenseKey={hotLicenseKey}
             data={cty.map((c) => [c.cty, c.cnt, c.avgTtl])}
-            colHeaders={['시군', '건수', '평균 총재배면적']}
+            colHeaders={[`cty(${BAT_COL.soc_est_end})`, '건수', `평균 ${BAT_COL.delta_q_Ah}`]}
             columns={[
               { data: 0, readOnly: true, width: 120 },
               { data: 1, type: 'numeric', readOnly: true },
@@ -106,13 +107,13 @@ export default function HandsontableJejuTab(props: ToolRowsProps) {
         </div>
       </ToolSection>
 
-      <ToolSection title="Handsontable — 작목별 평균면적">
+      <ToolSection title={`Handsontable — ${BAT_COL.cyc_condition_age_type}별 평균 ${BAT_COL.delta_q_Ah}`}>
         <div className="hot ht-theme-main" style={{ width: '100%', minHeight: 300 }}>
           <HotTable
             themeName="main"
             licenseKey={hotLicenseKey}
             data={agg.map((r) => [r.item, r.avgTtl])}
-            colHeaders={['작목', '평균 총재배면적']}
+            colHeaders={[BAT_COL.cyc_condition_age_type, `평균 ${BAT_COL.delta_q_Ah}`]}
             columns={[
               { data: 0, readOnly: true, width: 180 },
               { data: 1, type: 'numeric', numericFormat: { pattern: '0,0.0' }, readOnly: true },
@@ -124,13 +125,13 @@ export default function HandsontableJejuTab(props: ToolRowsProps) {
         </div>
       </ToolSection>
 
-      <ToolSection title="Handsontable — 작목 건수(파이용 데이터)">
+      <ToolSection title={`Handsontable — ${BAT_COL.cyc_condition_age_type} 건수(파이용 데이터)`}>
         <div className="hot ht-theme-main" style={{ width: '100%', minHeight: 280 }}>
           <HotTable
             themeName="main"
             licenseKey={hotLicenseKey}
             data={pie.map((p) => [p.bucket, p.count])}
-            colHeaders={['작목', '건수']}
+            colHeaders={[BAT_COL.cyc_condition_age_type, '건수']}
             columns={[
               { data: 0, readOnly: true, width: 200 },
               { data: 1, type: 'numeric', readOnly: true },
